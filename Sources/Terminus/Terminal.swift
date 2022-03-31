@@ -68,6 +68,18 @@ public class Terminal {
         return String(bytes: bufferPointer, encoding: .utf8)
     }
     
+    public func executeControlSequence(_ controlSequence: String) {
+        var cs = controlSequence
+        write(&cs, to: standardOutput)
+    }
+    
+    public func executeControlSequenceWithResponse(_ controlSequence: String) -> String? {
+        var cs = controlSequence
+        write(&cs, to: standardOutput)
+        return read(nBytes: 64)
+    }
+    
+    
     
     
     public func quit() {
