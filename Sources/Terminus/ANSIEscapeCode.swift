@@ -9,8 +9,13 @@ import Foundation
 public let ESC = "\u{1B}" // Escape character (27 or 1B)
 public let CSI = ESC + "["
 
+///A string corresponding to an ANSI Escape Code
+public protocol aControlSequence {
+    func stringValue() -> String
+}
+
 ///Terminal Control Sequences (ANSI Escape Codes)
-public enum ControlSequence {
+public enum ANSIEscapeCode: Equatable {
     public enum Direction: String {
         case up = "A"
         case down = "B"
@@ -26,9 +31,16 @@ public enum ControlSequence {
     //////Moves the cursor n spaces in a given direction (up, down, left, or right)
     case cursorMove(n: Int, direction: Direction) //CSI # {[A,B,C,D
     ///Moves the cursor to the home position (0, 0)
-    case cursorMoveToHome
+    case cursorMoveToHome //CSI H
     
-    func rawString() -> String {
+    public static func +(lhs: ANSIEscapeCode, rhs: ANSIEscapeCode) -> String {
+        lhs.stringValue() + rhs.stringValue()
+    }
+    public static func ==(lhs: ANSIEscapeCode, rhs: ANSIEscapeCode) -> Bool {
+        return lhs.stringValue() == rhs.stringValue()
+    }
+    
+    func stringValue() -> String {
         switch self {
         case .cursorPosition:
             return CSI + "6n"
