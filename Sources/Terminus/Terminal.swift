@@ -1,9 +1,6 @@
 import Foundation
 
 
-typealias Attributes = Set<String>
-
-
 /**
  The starting point for a command line application.
 
@@ -22,6 +19,11 @@ public class Terminal {
 
     deinit {
         termios.restoreOriginalSettings()
+    }
+    
+    ///Sets the input mode and echo of the terminal
+    public func setInputMode(inputMode: InputMode, echo: Bool = false) {
+        termios.setInputMode(inputMode, echo: echo)
     }
 
 
@@ -69,24 +71,27 @@ public class Terminal {
          */
         return String(bytes: bufferPointer, encoding: .utf8)
     }
-    public func print(_ string: String) {
-        var str = string
+    public func print(_ string: String, attributes: [Attribute] = []) {
+        var str = attributes.map{$0.stringValue()}.reduce(""){$0 + $1} + string
         write(&str, to: standardOutput)
+        var resetAttributes = attributes.map{$0.resetValue()}.joined(separator: "")
+        write(&resetAttributes, to: standardOutput)
     }
 
     public func executeControlSequence(_ controlSequence: ControlSequence) {
-        var cs = controlSequence.rawString()
+        var cs = controlSequence.stringValue()
         write(&cs, to: standardOutput)
     }
 
     public func executeControlSequenceWithResponse(_ controlSequence: ControlSequence) -> String? {
-        var cs = controlSequence.rawString()
+        var cs = controlSequence.stringValue()
         write(&cs, to: standardOutput)
         return read(nBytes: 64)
     }
 
 
     public func quit() {
-        //tcsetattr(fd, TCSADRAIN, &originalTermios)
+        termios.restoreOriginalSettings()
+        exit(0)
     }
 }

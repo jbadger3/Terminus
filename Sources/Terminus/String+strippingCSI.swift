@@ -3,7 +3,7 @@
 
 import Foundation
 
-extension String {
+public extension String {
     func strippingCSI() -> String {
         return self.replacingOccurrences(of: CSI, with: "")
     }

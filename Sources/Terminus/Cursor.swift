@@ -21,7 +21,8 @@ public struct Cursor {
     
     public var location: Location? {
         let terminal = Terminal.shared
-        guard let locationString = terminal.executeControlSequenceWithResponse(.cursorPosition) else { return nil }
+        let controlSequence = ANSIEscapeCode.cursorPosition
+        guard let locationString = terminal.executeControlSequenceWithResponse(controlSequence) else { return nil }
         let items = locationString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in: .letters)}.map{Int($0)}.filter({$0 != nil})
         if items.count == 2,
             let x = items[0],
@@ -37,16 +38,19 @@ public struct Cursor {
     
     ///
     public func move(toLocation location: Location) {
-        Terminal.shared.executeControlSequence(ControlSequence.cursorMoveToLocation(location))
+        let controlSequence = ANSIEscapeCode.cursorMoveToLocation(location)
+        Terminal.shared.executeControlSequence(controlSequence)
     }
     
-    public func move(_ n: Int, direction: ControlSequence.Direction) {
-        Terminal.shared.executeControlSequence(.cursorMove(n: n, direction: direction))
+    public func move(_ n: Int, direction: ANSIEscapeCode.Direction) {
+        let controlSequence = ANSIEscapeCode.cursorMove(n: n, direction: direction)
+        Terminal.shared.executeControlSequence(controlSequence)
     }
     
     ///moves the cursor to (0, 0)
     public func moveToHome() {
-        Terminal.shared.executeControlSequence(.cursorMoveToHome)
+        let controlSequence = ANSIEscapeCode.cursorMoveToHome
+        Terminal.shared.executeControlSequence(controlSequence)
     }
     
     ///Sets the cursor style

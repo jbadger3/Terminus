@@ -10,12 +10,12 @@ public let ESC = "\u{1B}" // Escape character (27 or 1B)
 public let CSI = ESC + "["
 
 ///A string corresponding to an ANSI Escape Code
-public protocol aControlSequence {
+public protocol ControlSequence {
     func stringValue() -> String
 }
 
 ///Terminal Control Sequences (ANSI Escape Codes)
-public enum ANSIEscapeCode: Equatable {
+public enum ANSIEscapeCode: Equatable, ControlSequence {
     public enum Direction: String {
         case up = "A"
         case down = "B"
@@ -40,7 +40,7 @@ public enum ANSIEscapeCode: Equatable {
         return lhs.stringValue() == rhs.stringValue()
     }
     
-    func stringValue() -> String {
+    public func stringValue() -> String {
         switch self {
         case .cursorPosition:
             return CSI + "6n"
