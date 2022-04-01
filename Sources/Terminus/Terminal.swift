@@ -6,28 +6,28 @@ typealias Attributes = Set<String>
 
 /**
  The starting point for a command line application.
- 
- 
+
+
  */
 public class Terminal {
     public static let shared = Terminal()
     public private(set) var termios = Termios()
     var standardInput = FileHandle.standardInput
     var standardOutput = FileHandle.standardOutput
-    
+
     init(inputMode: InputMode = .cbreak, echo: Bool = false) {
         termios.setInputMode(inputMode, echo: echo)
     }
-    
-    
+
+
     deinit {
         termios.restoreOriginalSettings()
     }
-    
-    
-    
+
+
+
     /**
- 
+
      */
     public func getch() -> Key? {
         /*
@@ -37,7 +37,7 @@ public class Terminal {
         }
         return nil
     }
-    
+
     func write(_ string: inout String, to fh: FileHandle) {
         #if os(macOS)
         Darwin.write(fh.fileDescriptor, &string, string.lengthOfBytes(using: .utf8))
@@ -45,8 +45,8 @@ public class Terminal {
         Glibc.write(fh.fileDescriptor, &string, string.lengthOfBytes(using: .utf8))
         #endif
     }
-    
-    
+
+
     func read(nBytes: Int) -> String? {
         /*
          Trying a while loop reading one byte at a time fails...reason unknown.  The loop just stops.  So instead read a given number of bytes
@@ -56,7 +56,7 @@ public class Terminal {
         #if os(macOS)
         bytesRead = Darwin.read(standardInput.fileDescriptor, bytesP, nBytes)
         #elseif os(Linux)
-        bytesRead = GLlibc.read(standardInput.fileDescriptor, bytesP, nBytes)
+        bytesRead = Glibc.read(standardInput.fileDescriptor, bytesP, nBytes)
         #endif
         if bytesRead <= 0 {
             return nil
@@ -73,22 +73,20 @@ public class Terminal {
         var str = string
         write(&str, to: standardOutput)
     }
-    
+
     public func executeControlSequence(_ controlSequence: ControlSequence) {
         var cs = controlSequence.rawString()
         write(&cs, to: standardOutput)
     }
-    
+
     public func executeControlSequenceWithResponse(_ controlSequence: ControlSequence) -> String? {
         var cs = controlSequence.rawString()
         write(&cs, to: standardOutput)
         return read(nBytes: 64)
     }
-    
+
 
     public func quit() {
         //tcsetattr(fd, TCSADRAIN, &originalTermios)
     }
 }
-
-
