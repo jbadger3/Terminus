@@ -1,41 +1,34 @@
 import Foundation
-public enum KeyCode: Int32 {
+
+//https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#cursor-positioning
+//virtual terminal input keys
+public enum KeyCode: String {
     /* ASCII control characters */
     /// ASCII control c (^C)
-    case KEY_CONTROL_C = 3
+    //case KEY_CONTROL_C = 3
     /// ASCII BS
-    case KEY_BS = 8
+    //case KEY_BS = "\u{7f}"
     /// ASCII tab (HT)
-    case KEY_TAB = 9
+    case KEY_TAB = "\t"
     /// ASCII Line feed (LF)
-    case KEY_LF = 10
+    case KEY_LF = "\n"
     /// ASCII carriage return (CR)
-    case KEY_CR = 13
+    case KEY_CR = "\r"
     /// ASCII escape (ESC)
-    case KEY_ESC = 27
+    case KEY_ESC = "\u{1b}"
     /// ASCII delete (DEL)
-    case KEY_DEL = 127
-    /* From ncurses */
-    /// A wchar_t contains a key code
-    case KEY_CODE_YES = 256 
-    /// Minimum curses key
-    case KEY_MIN = 257 
-    /// Soft (partial) reset (unreliable)
-    case KEY_SRESET = 344 
-    /// Reset or hard reset (unreliable)
-    case KEY_RESET = 345 
+    case KEY_DEL = "\u{7f}"
     /// down-arrow key
-    case KEY_DOWN = 258 
+    case KEY_DOWN = "\u{1b}[B"
     /// up-arrow key
-    case KEY_UP = 259 
+    case KEY_UP = "\u{1b}[A"
     /// left-arrow key
-    case KEY_LEFT = 260 
+    case KEY_LEFT = "\u{1b}[D"
     /// right-arrow key
-    case KEY_RIGHT = 261 
+    case KEY_RIGHT = "\u{1b}[C"
+     /*
     /// home key
-    case KEY_HOME = 262 
-    /// backspace key
-    case KEY_BACKSPACE = 263 
+    case KEY_HOME = "\u{1b}[H"
     /// Function keys. Space for 64
     case KEY_F0 = 264 
     /// F1 key
@@ -223,5 +216,6 @@ public enum KeyCode: Int32 {
     /// Mouse event has occurred
     case KEY_MOUSE = 409 
     /// Terminal resize event
-    case KEY_RESIZE = 410 
+    case KEY_RESIZE = 410
+    */
 }

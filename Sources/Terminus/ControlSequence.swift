@@ -6,11 +6,11 @@
 
 import Foundation
 
-
+public let ESC = "\u{1B}" // Escape character (27 or 1B)
+public let CSI = ESC + "["
 
 ///Terminal Control Sequences (ANSI Escape Codes)
-public struct ControlSequence {
-    public typealias Response = String
+public enum ControlSequence {
     public enum Direction: String {
         case up = "A"
         case down = "B"
@@ -18,26 +18,27 @@ public struct ControlSequence {
         case left = "D"
     }
     
-    //ANSI Codes
-    public static let ESC = "\u{1B}"  // Escape character (27 or 1B)
-    public static let CSI = ESC + "["
-    
     //cursor related
     ///Gets the current position of the cursor 'ESC[6n'
-    public static let cursorPosition = CSI + "6n"
-    
-    ///Moves the cursor n spaces in a given direction (up, down, left, or right)
-    public static func cursorMove(_ n: Int, direction: Direction) -> String {
-        return CSI + "\(n)" + direction.rawValue
-    }
-    
+    case cursorPosition //CSI + "6n"
     ///Moves the cursor to the specified (x, y) location
-    public static func cursorMove(toLocation location: Location) -> String {
-        return CSI + "\(location.y);\(location.x)H"
-    }
-    
+    case cursorMoveToLocation(Location) //CSI {line};{column}H
+    //////Moves the cursor n spaces in a given direction (up, down, left, or right)
+    case cursorMove(n: Int, direction: Direction) //CSI # {[A,B,C,D
     ///Moves the cursor to the home position (0, 0)
-    public static let cursorMoveToHome = CSI + "H"
+    case cursorMoveToHome
     
+    func rawString() -> String {
+        switch self {
+        case .cursorPosition:
+            return CSI + "6n"
+        case .cursorMoveToLocation(let location):
+            return CSI + "\(location.y);\(location.x)H"
+        case .cursorMove(let n, let direction):
+            return CSI + "\(n)" + direction.rawValue
+        case .cursorMoveToHome:
+            return CSI + "H"
+        }
+    }
 
 }

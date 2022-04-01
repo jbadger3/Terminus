@@ -5,6 +5,6 @@ import Foundation
 
 extension String {
     func strippingCSI() -> String {
-        return self.replacingOccurrences(of: ControlSequence.CSI, with: "")
+        return self.replacingOccurrences(of: CSI, with: "")
     }
 }

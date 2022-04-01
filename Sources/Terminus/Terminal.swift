@@ -29,11 +29,13 @@ public class Terminal {
     /**
  
      */
-    public func getch() -> String {
+    public func getch() -> Key? {
         /*
-         Using 32 bytes allows for some of the bigger grapheme clusters to be captured...such as 👨‍❤️‍👨 and 👨‍👨‍👧‍👧.  Not sure if this is the best choice, but works for now. Note: Echo mode spits out UTF-8 in 4 byte increments (single code point) to the console. */
-        let inputString = self.read(nBytes: 32)
-        return inputString ?? ""
+         Using 32 bytes allows for some of the bigger grapheme clusters to be captured...such as 👨‍❤️‍👨 and 👨‍👨‍👧‍👧.  Not sure if this is the best choice, but works for now. Note: Echo mode spits out UTF-8 in 4 byte increments (single code point) to the console (at least in iTerm). */
+        if let inputString = self.read(nBytes: 32) {
+            return Key(rawValue: inputString)
+        }
+        return nil
     }
     
     func write(_ string: inout String, to fh: FileHandle) {
@@ -67,21 +69,23 @@ public class Terminal {
          */
         return String(bytes: bufferPointer, encoding: .utf8)
     }
+    public func print(_ string: String) {
+        var str = string
+        write(&str, to: standardOutput)
+    }
     
-    public func executeControlSequence(_ controlSequence: String) {
-        var cs = controlSequence
+    public func executeControlSequence(_ controlSequence: ControlSequence) {
+        var cs = controlSequence.rawString()
         write(&cs, to: standardOutput)
     }
     
-    public func executeControlSequenceWithResponse(_ controlSequence: String) -> String? {
-        var cs = controlSequence
+    public func executeControlSequenceWithResponse(_ controlSequence: ControlSequence) -> String? {
+        var cs = controlSequence.rawString()
         write(&cs, to: standardOutput)
         return read(nBytes: 64)
     }
     
-    
-    
-    
+
     public func quit() {
         //tcsetattr(fd, TCSADRAIN, &originalTermios)
     }
