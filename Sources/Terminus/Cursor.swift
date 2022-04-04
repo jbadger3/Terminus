@@ -9,15 +9,7 @@ import Foundation
 
 ///The cursor in the terminal
 public struct Cursor {
-    public enum Style: Int {
-        case blinking_block
-        case blinking_block_default
-        case steady_block
-        case blinking_underline
-        case steady_underline
-        case blinking_bar // xterm.
-        case steady_bar // xterm.
-    }
+
     
     public var location: Location? {
         let terminal = Terminal.shared
@@ -36,12 +28,13 @@ public struct Cursor {
         
     }
     
-    ///
+    ///Moves the cursor to the specified location (x, y).
     public func move(toLocation location: Location) {
         let controlSequence = ANSIEscapeCode.cursorMoveToLocation(location)
         Terminal.shared.executeControlSequence(controlSequence)
     }
     
+    ///Moves the cursor n units in the direction (up, down, left, right) specified
     public func move(_ n: Int, direction: ANSIEscapeCode.Direction) {
         let controlSequence = ANSIEscapeCode.cursorMove(n: n, direction: direction)
         Terminal.shared.executeControlSequence(controlSequence)
@@ -54,10 +47,30 @@ public struct Cursor {
     }
     
     ///Sets the cursor style
-    public func set(style: Style) {
-        
-        
+    public func set(style: ANSIEscapeCode.Style) {
+        let controlSequence = ANSIEscapeCode.cursorStyle(style: style)
+        Terminal.shared.executeControlSequence(controlSequence)
     }
+    
+    ///Sets cursor visibility
+    public func set(visibility: Bool) {
+        let controlSequence = ANSIEscapeCode.cursorVisible(visibility)
+        Terminal.shared.executeControlSequence(controlSequence)
+    }
+    
+    ///Saves the current location of the cursor
+    public func save() {
+        let controlSequence = ANSIEscapeCode.cursorSave
+        Terminal.shared.executeControlSequence(controlSequence)
+    }
+    
+    ///Restores the cursor to the last saved position
+    public func restore() {
+        let controlSequence = ANSIEscapeCode.cursorRestore
+        Terminal.shared.executeControlSequence(controlSequence)
+    }
+    
+    
     
 
     

@@ -88,9 +88,24 @@ public class Terminal {
         write(&cs, to: standardOutput)
         return read(nBytes: 64)
     }
-
+    
+    public func softReset() {
+        executeControlSequence(ANSIEscapeCode.softReset)
+    }
+    
+    public func screenSize() -> (x: Int, y: Int) {
+        guard let resultString = executeControlSequenceWithResponse(ANSIEscapeCode.screenSize) else {return (x:-1, y:-1)}
+        let items = resultString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in: .letters)}.map{Int($0)}.filter({$0 != nil})
+        if items.count == 2,
+            let x = items[1],
+            let y = items[0] {
+            return (x: x, y: y)
+        }
+        return (x: -1, y: -1)
+    }
 
     public func quit() {
+        softReset()
         termios.restoreOriginalSettings()
         exit(0)
     }

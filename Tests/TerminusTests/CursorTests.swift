@@ -32,7 +32,7 @@ class CursorTests: XCTestCase {
     
 
     func test_location_whenLocationSetToZeroZero_returnsLocationZeroZero() {
-        var responseString = ControlSequence.CSI + "0;0R"
+        var responseString = CSI + "0;0R"
         terminal.write(&responseString, to: terminal.standardInput)
         try! terminal.standardInput.seek(toOffset: 0)
         let expectedLocation = Location(x: 0, y: 0)

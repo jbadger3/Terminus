@@ -5,18 +5,18 @@ import XCTest
 
 @testable import Terminus
 
-final class TermiosTests: XCTestCase {
+public final class TermiosTests: XCTestCase {
     let fd = FileHandle.standardInput.fileDescriptor
     var sut: Termios!
     var startTermios: termios!
     
-    override func setUpWithError() throws {
+    public override func setUpWithError() throws {
         sut = Termios()
         startTermios = termios()
         tcgetattr(fd, &startTermios)
     }
     
-    override func tearDownWithError() throws {
+    public override func tearDownWithError() throws {
         sut = nil
         startTermios = nil
     }
@@ -96,11 +96,14 @@ final class TermiosTests: XCTestCase {
     
     func test_restoreOriginalSettings_givenAlteredLFlags_returnsTerminalToOriginalSettings() throws {
         XCTAssertEqual(sut.originalTermios.c_lflag, startTermios.c_lflag)
+    
         var termiosCopy = startTermios!
-        termiosCopy.c_lflag = ~UInt(0)
+       
+        termiosCopy.c_lflag = 9
         tcsetattr(fd, TCSANOW, &termiosCopy)
-        tcgetattr(fd, &startTermios)
-        XCTAssertNotEqual(sut.originalTermios.c_lflag, startTermios.c_lflag)
+        tcgetattr(STDIN_FILENO, &termiosCopy)
+        
+        XCTAssertNotEqual(sut.originalTermios.c_lflag, termiosCopy.c_lflag)
         
         sut.restoreOriginalSettings()
         

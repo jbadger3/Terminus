@@ -5,9 +5,12 @@
 
 
 import Foundation
-
+public let BEL = "\u{7}"
 public let ESC = "\u{1B}" // Escape character (27 or 1B)
-public let CSI = ESC + "["
+public let CSI = ESC + "[" // Control Sequence Introducer (CSI  is 0x9b).
+public let DCS = ESC + "P" // Device Control String (DCS  is 0x90).
+public let OSC = ESC + "]" // Operating System Command (OSC  is 0x9d).
+public let ST = ESC + "\\" // String Terminator (ST  is 0x9c).
 
 ///A string corresponding to an ANSI Escape Code
 public protocol ControlSequence {
@@ -23,6 +26,26 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
         case left = "D"
     }
     
+    public enum Style: Int {
+        case blinking_block
+        case blinking_block_default
+        case steady_block
+        case blinking_underline
+        case steady_underline
+        case blinking_bar // xterm.
+        case steady_bar // xterm.
+    }
+    
+    //terminal related
+    ///Performs a 'soft' terminal reset
+    case softReset
+    ///Reports the size of the text area in characters
+    case textAreaSize
+    ///Reports the size of the screen in characters
+    case screenSize
+    
+    
+    
     //cursor related
     ///Gets the current position of the cursor 'ESC[6n'
     case cursorPosition //CSI + "6n"
@@ -32,6 +55,15 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     case cursorMove(n: Int, direction: Direction) //CSI # {[A,B,C,D
     ///Moves the cursor to the home position (0, 0)
     case cursorMoveToHome //CSI H
+    ///chages cursor visibility
+    case cursorVisible(Bool)
+    ///sets the cursor style
+    case cursorStyle(style: Style)
+    ///Saves the current cursor position
+    case cursorSave
+    ///Moves the cursor to the last saved cursor potion
+    case cursorRestore
+    
     
     public static func +(lhs: ANSIEscapeCode, rhs: ANSIEscapeCode) -> String {
         lhs.stringValue() + rhs.stringValue()
@@ -42,6 +74,12 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     
     public func stringValue() -> String {
         switch self {
+        case .softReset:
+            return CSI + "!p"
+        case .textAreaSize:
+            return CSI + "18t"
+        case .screenSize:
+            return CSI + "19t"
         case .cursorPosition:
             return CSI + "6n"
         case .cursorMoveToLocation(let location):
@@ -50,7 +88,18 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
             return CSI + "\(n)" + direction.rawValue
         case .cursorMoveToHome:
             return CSI + "H"
+        case .cursorVisible(let isVisible):
+            if isVisible {
+                return CSI + "?25h"
+            } else {
+                return CSI + "?25l"
+            }
+        case .cursorStyle(let style):
+            return CSI + "\(style.rawValue) q"
+        case .cursorSave:
+            return ESC + "7"
+        case .cursorRestore:
+            return ESC + "8"
         }
     }
-
 }
