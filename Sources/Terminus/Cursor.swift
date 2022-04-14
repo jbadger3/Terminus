@@ -1,32 +1,25 @@
 //  Created by Jonathan Badger on 12/28/21.
 //
-
 import Foundation
 
 
-
-
-
-///The cursor in the terminal
+///The terminal cursor
 public struct Cursor {
-
-    
+    ///The current location of the cursor in the terminal
     public var location: Location? {
         let terminal = Terminal.shared
         let controlSequence = ANSIEscapeCode.cursorPosition
         guard let locationString = terminal.executeControlSequenceWithResponse(controlSequence) else { return nil }
         let items = locationString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in: .letters)}.map{Int($0)}.filter({$0 != nil})
         if items.count == 2,
-            let x = items[0],
-            let y = items[1] {
+            let x = items[1],
+            let y = items[0] {
             return Location(x: x, y: y)
         }
         return nil
     }
 
-    public init() {
-        
-    }
+    public init() {}
     
     ///Moves the cursor to the specified location (x, y).
     public func move(toLocation location: Location) {
@@ -40,7 +33,7 @@ public struct Cursor {
         Terminal.shared.executeControlSequence(controlSequence)
     }
     
-    ///moves the cursor to (0, 0)
+    ///moves the cursor to (1, 1)
     public func moveToHome() {
         let controlSequence = ANSIEscapeCode.cursorMoveToHome
         Terminal.shared.executeControlSequence(controlSequence)
@@ -69,10 +62,4 @@ public struct Cursor {
         let controlSequence = ANSIEscapeCode.cursorRestore
         Terminal.shared.executeControlSequence(controlSequence)
     }
-    
-    
-    
-
-    
-    
 }
