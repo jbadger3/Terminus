@@ -11,6 +11,7 @@ public let CSI = ESC + "[" // Control Sequence Introducer (CSI  is 0x9b).
 public let DCS = ESC + "P" // Device Control String (DCS  is 0x90).
 public let OSC = ESC + "]" // Operating System Command (OSC  is 0x9d).
 public let ST = ESC + "\\" // String Terminator (ST  is 0x9c).
+public let DLE = "\u{10}" // Data link escape DLE
 
 ///A string corresponding to an ANSI Escape Code
 public protocol ControlSequence {
@@ -53,7 +54,7 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     case cursorMoveToLocation(Location) //CSI {line};{column}H
     //////Moves the cursor n spaces in a given direction (up, down, left, or right)
     case cursorMove(n: Int, direction: Direction) //CSI # {[A,B,C,D
-    ///Moves the cursor to the home position (0, 0)
+    ///Moves the cursor to the home position (1, 1)
     case cursorMoveToHome //CSI H
     ///chages cursor visibility
     case cursorVisible(Bool)
@@ -63,6 +64,9 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     case cursorSave
     ///Moves the cursor to the last saved cursor potion
     case cursorRestore
+    
+    //erase functions
+    case eraseLine // CSI 2K
     
     
     public static func +(lhs: ANSIEscapeCode, rhs: ANSIEscapeCode) -> String {
@@ -100,6 +104,8 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
             return ESC + "7"
         case .cursorRestore:
             return ESC + "8"
+        case .eraseLine:
+            return CSI + "2K"
         }
     }
 }
