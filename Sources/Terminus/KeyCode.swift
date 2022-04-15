@@ -1,7 +1,8 @@
 import Foundation
 
 //https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences#cursor-positioning
-///virtual terminal input keys
+
+///Virtual terminal input keys
 public enum KeyCode: String {
     /// ASCII control c (^c)
     case KEY_CONTROL_C = "\u{3}"
