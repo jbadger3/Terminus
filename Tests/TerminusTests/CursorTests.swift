@@ -11,6 +11,15 @@ class CursorTests: XCTestCase {
     
     override func setUpWithError() throws {
         sut = Cursor()
+
+    }
+    
+    override func tearDownWithError() throws {
+        sut = nil
+        terminal = nil
+    }
+    
+    func mockTerminalIO() {
         terminal = Terminal.shared
         let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
                                             isDirectory: true)
@@ -25,22 +34,34 @@ class CursorTests: XCTestCase {
         terminal.standardOutput = try! FileHandle(forUpdating: stdoutURL)
     }
     
-    override func tearDownWithError() throws {
-        sut = nil
-        terminal = nil
-    }
-    
 
     func test_location_whenLocationSetToZeroZero_returnsLocationZeroZero() {
+        mockTerminalIO()
         var responseString = CSI + "0;0R"
-        terminal.write(&responseString, to: terminal.standardInput)
-        try! terminal.standardInput.seek(toOffset: 0)
+        terminal.write(&responseString, toFileHandle: terminal.standardInput)
+        //try! terminal.standardInput.seek(toOffset: 0)
         let expectedLocation = Location(x: 0, y: 0)
         let cursorLocation = sut.location
 
         XCTAssertEqual(cursorLocation, expectedLocation)
         
     }
+    
+    func test_moveToLocation_movesToSpecifiedLocation() {
+        //first save cursor
+        var saveCS = ESC + "7"
+        write(STDOUT_FILENO, &saveCS, saveCS.lengthOfBytes(using: .utf8))
+        let expectedLocation = Location(x: 25, y: 30)
+        
+        
+        sut.move(toLocation: expectedLocation)
+        let finalLocation = sut.location
+        
+        XCTAssertEqual(expectedLocation, finalLocation)
+        var restoreCS = ESC + "8"
+        write(STDOUT_FILENO, &restoreCS, restoreCS.lengthOfBytes(using: .utf8))
+    }
+    
      
     
     
