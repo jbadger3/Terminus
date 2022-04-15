@@ -18,7 +18,7 @@ public struct Termios {
         currentTermios = originalTermios
     }
     
-    mutating func setInputMode(_ inputMode: InputMode, echo: Bool) {
+    mutating func set(_ inputMode: InputMode, echo: Bool) {
         #if os(macOS)
         switch inputMode {
         case .raw:

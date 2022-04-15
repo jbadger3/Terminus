@@ -52,7 +52,7 @@ public final class TermiosTests: XCTestCase {
         //Check bitwise to make sure ECHO and ECHOE are off
         XCTAssertTrue(lflagBitsOff(flags: [ECHO, ECHOE], termiosStruct: sut.currentTermios))
 
-        sut.setInputMode(.cbreak, echo: true)
+        sut.set(.cbreak, echo: true)
         XCTAssertTrue(lflagBitsOn(flags: [ECHO, ECHOE], termiosStruct: sut.currentTermios))
 
         var terminalTermios = termios()
@@ -66,7 +66,7 @@ public final class TermiosTests: XCTestCase {
         sut = Termios()
         XCTAssertTrue(lflagBitsOff(flags: [ICANON, SIGINT], termiosStruct: sut.currentTermios))
 
-        sut.setInputMode(.raw, echo: false)
+        sut.set(.raw, echo: false)
 
         XCTAssertTrue(lflagBitsOff(flags: [ICANON, SIGINT], termiosStruct: sut.currentTermios))
         tcgetattr(fd, &startTermios)
@@ -81,7 +81,7 @@ public final class TermiosTests: XCTestCase {
         XCTAssertTrue(lflagBitsOn(flags: [ICANON], termiosStruct: sut.currentTermios))
         XCTAssertTrue(lflagBitsOff(flags: [ISIG], termiosStruct: sut.currentTermios))
 
-        sut.setInputMode(.cbreak, echo: false)
+        sut.set(.cbreak, echo: false)
 
         tcgetattr(fd, &startTermios)
         XCTAssertTrue(lflagBitsOff(flags: [ICANON], termiosStruct: startTermios))
@@ -94,7 +94,7 @@ public final class TermiosTests: XCTestCase {
         sut = Termios()
         XCTAssertTrue(lflagBitsOff(flags: [ICANON, ISIG], termiosStruct: sut.currentTermios))
 
-        sut.setInputMode(.lineEditing, echo: false)
+        sut.set(.lineEditing, echo: false)
 
         tcgetattr(fd, &startTermios)
         XCTAssertTrue(lflagBitsOn(flags: [ICANON, ISIG], termiosStruct: startTermios))
