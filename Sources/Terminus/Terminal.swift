@@ -8,28 +8,28 @@ import Foundation
  */
 public class Terminal {
     public static let shared = Terminal()
-    public private(set) var termios = Termios()
+    private var termios = Termios()
     var standardInput = FileHandle.standardInput
     var standardOutput = FileHandle.standardOutput
-    public var inputMode: InputMode
-    public var echo: Bool
+    public private(set) var inputMode: InputMode
+    public private(set) var echo: Bool
 
     init(inputMode: InputMode = .cbreak, echo: Bool = false) {
-        termios.setInputMode(inputMode, echo: echo)
+        termios.set(inputMode, echo: echo)
         self.inputMode = inputMode
         self.echo = echo
     }
-
 
     deinit {
         termios.restoreOriginalSettings()
     }
     
     ///Sets the input mode and echo of the terminal
-    public func setInputMode(inputMode: InputMode, echo: Bool = false) {
-        termios.setInputMode(inputMode, echo: echo)
+    public func set(inputMode: InputMode, echo: Bool = false) {
+        termios.set(inputMode, echo: echo)
+        self.inputMode = inputMode
+        self.echo = echo
     }
-
 
 
     /**
@@ -53,11 +53,12 @@ public class Terminal {
         Glibc.write(fh.fileDescriptor, &str, str.lengthOfBytes(using: .utf8))
         #endif
     }
+    
 
 
     func read(nBytes: Int) -> String? {
         /*
-         Trying a while loop reading one byte at a time fails...reason unknown.  The loop just stops before reaching the current EOF.  So instead read a given number of bytes
+         Read is a low level system call and some argue not to use it, but I have yet to get fread, getchar, etc to work properly as the terminal essentially waits until nBytes are read.
          */
         let bytesP = UnsafeMutableRawPointer.allocate(byteCount: nBytes, alignment: MemoryLayout<UInt8>.alignment).initializeMemory(as: UInt8.self, repeating: 0, count: nBytes)
         
