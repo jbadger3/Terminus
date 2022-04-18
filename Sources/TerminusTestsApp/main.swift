@@ -23,7 +23,6 @@ struct RunTests: ParsableCommand {
         let fileHandle = FileHandle(forWritingAtPath: logFile)
         let testLogger = TestLogger.shared
         testLogger.fileHandle = fileHandle
-        
     }
     
     func runTestCases() {
@@ -39,6 +38,26 @@ struct RunTests: ParsableCommand {
     }
     
 }
+
+
+let terminal = Terminal.shared
+
+var shouldquit = false
+
+//terminal.executeControlSequence(ANSIEscapeCode.colorSetBackground(index: 80))
+//terminal.executeControlSequence(ANSIEscapeCode.colorSetForegroundRGB(r: 240, g: 0, b: 240))
+let palette = XTermPalette()
+let colorPair = ColorPair(foreground: palette.Lime, background: palette.DarkBlue)
+terminal.write("Hello", attributes: [.colorPair(colorPair)])
+while !shouldquit {
+    if let key = terminal.getKey() {
+        terminal.write(key.rawValue)
+        if key.rawValue == "q" {
+            terminal.quit()
+        }
+    }
+}
+ 
 
 RunTests.main()
 

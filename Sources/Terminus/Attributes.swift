@@ -15,6 +15,8 @@ public enum Attribute: ControlSequence {
     case reverse //CSI 7m
     case hidden //CSI 8m
     case strikethrough //CSI 9m
+    case color(Color)
+    case colorPair(ColorPair)
     
     public func stringValue() -> String {
         switch self {
@@ -36,6 +38,14 @@ public enum Attribute: ControlSequence {
             return CSI + "8m"
         case .strikethrough:
             return CSI + "9m"
+        case .color(let color):
+            return ANSIEscapeCode.colorSetForegroundRGB(r: color.r, g: color.g, b: color.b).stringValue()
+        case .colorPair(let colorPair):
+            let fgColor = colorPair.foreground
+            let fgString = ANSIEscapeCode.colorSetForegroundRGB(r: fgColor.r , g: fgColor.g, b: fgColor.b)
+            let bgColor = colorPair.background
+            let bgString = ANSIEscapeCode.colorSetBackgroundRGB(r: bgColor.r, g: bgColor.g, b: bgColor.b)
+            return fgString + bgString
         }
     }
     
@@ -59,6 +69,10 @@ public enum Attribute: ControlSequence {
             return CSI + "28m"
         case .strikethrough:
             return CSI + "29m"
+        case .color( _):
+            return ""
+        case .colorPair(_):
+            return ""
         }
     }
     

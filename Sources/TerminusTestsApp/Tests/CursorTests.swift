@@ -50,26 +50,11 @@ class CursorTests: TestCase {
         var restoreCS = ESC + "8"
         write(STDOUT_FILENO, &restoreCS, restoreCS.lengthOfBytes(using: .utf8))
     }
-    
-    func mockTerminalIO() {
-        let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
-                                            isDirectory: true)
-        let stdinURL = temporaryDirectoryURL.appendingPathComponent("stdin.\(UUID())")
-        
-        let stdoutURL = temporaryDirectoryURL.appendingPathComponent("stdout.\(UUID())")
-        let fileManager = FileManager.default
-        fileManager.createFile(atPath: stdinURL.path, contents: nil)
-        fileManager.createFile(atPath: stdoutURL.path, contents: nil)
-        
-        terminal.standardInput = try! FileHandle(forUpdating: stdinURL)
-        terminal.standardOutput = try! FileHandle(forUpdating: stdoutURL)
-    }
-    
    
     func test_location_whenLocationSetTo2_3_returnsLocation2_3() throws {
         saveCursorPosition()
         var locationString = CSI + "3;2H"
-        terminal.write(&locationString, toFileHandle: terminal.standardOutput)
+        write(STDOUT_FILENO , &locationString, locationString.lengthOfBytes(using: .utf8))
         let expectedLocation = Location(x: 2, y: 3)
         let cursorLocation = sut.location
         TAssertEqual(cursorLocation, expectedLocation)

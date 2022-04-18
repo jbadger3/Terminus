@@ -18,33 +18,16 @@ class CursorTests: XCTestCase {
         sut = nil
         terminal = nil
     }
-    
-    func mockTerminalIO() {
-        terminal = Terminal.shared
-        let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(),
-                                            isDirectory: true)
-        let stdinURL = temporaryDirectoryURL.appendingPathComponent("stdin.\(UUID())")
-        
-        let stdoutURL = temporaryDirectoryURL.appendingPathComponent("stdout.\(UUID())")
-        let fileManager = FileManager.default
-        fileManager.createFile(atPath: stdinURL.path, contents: nil)
-        fileManager.createFile(atPath: stdoutURL.path, contents: nil)
-        
-        terminal.standardInput = try! FileHandle(forUpdating: stdinURL)
-        terminal.standardOutput = try! FileHandle(forUpdating: stdoutURL)
-    }
-    
 
     func test_location_whenLocationSetToZeroZero_returnsLocationZeroZero() {
-        mockTerminalIO()
-        var responseString = CSI + "0;0R"
-        terminal.write(&responseString, toFileHandle: terminal.standardInput)
+        mockTerminalIO(terminal: terminal)
+        let responseString = CSI + "0;0R"
+        write(responseString, toFileHandle: terminal.standardInput)
         //try! terminal.standardInput.seek(toOffset: 0)
         let expectedLocation = Location(x: 0, y: 0)
         let cursorLocation = sut.location
 
         XCTAssertEqual(cursorLocation, expectedLocation)
-        
     }
     
     func test_moveToLocation_movesToSpecifiedLocation() {
@@ -61,8 +44,4 @@ class CursorTests: XCTestCase {
         var restoreCS = ESC + "8"
         write(STDOUT_FILENO, &restoreCS, restoreCS.lengthOfBytes(using: .utf8))
     }
-    
-     
-    
-    
 }

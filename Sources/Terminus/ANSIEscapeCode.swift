@@ -20,6 +20,9 @@ public protocol ControlSequence {
 
 ///Terminal Control Sequences (ANSI Escape Codes)
 public enum ANSIEscapeCode: Equatable, ControlSequence {
+    /**
+    Arrow key designations
+     */
     public enum Direction: String {
         case up = "A"
         case down = "B"
@@ -27,6 +30,9 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
         case left = "D"
     }
     
+    /**
+    Cursor styles (check your terminal emulator for supported styles)
+     */
     public enum Style: Int {
         case blinking_block
         case blinking_block_default
@@ -46,13 +52,12 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     case screenSize
     
     
-    
     //cursor related
     ///Gets the current position of the cursor 'ESC[6n'
     case cursorPosition //CSI + "6n"
     ///Moves the cursor to the specified (x, y) location
     case cursorMoveToLocation(Location) //CSI {line};{column}H
-    //////Moves the cursor n spaces in a given direction (up, down, left, or right)
+    ///Moves the cursor n spaces in a given direction (up, down, left, or right)
     case cursorMove(n: Int, direction: Direction) //CSI # {[A,B,C,D
     ///Moves the cursor to the home position (1, 1)
     case cursorMoveToHome //CSI H
@@ -68,6 +73,15 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     //erase functions
     case eraseLine // CSI 2K
     
+    //Color functions
+    ///Sets the text color using the color table of the terminal
+    case colorSetForeground(index: Int)
+    ///Sets the background color using the color table of the terminal
+    case colorSetBackground(index: Int)
+    ///Sets the foreground color using r, g, b values
+    case colorSetForegroundRGB(r: Int, g: Int, b: Int)
+    ///Sets the background color using r, g, b values
+    case colorSetBackgroundRGB(r: Int, g: Int, b: Int)
     
     public static func +(lhs: ANSIEscapeCode, rhs: ANSIEscapeCode) -> String {
         lhs.stringValue() + rhs.stringValue()
@@ -106,6 +120,15 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
             return ESC + "8"
         case .eraseLine:
             return CSI + "2K"
+        case .colorSetForeground(let index):
+            return CSI + "38;5;\(index)m"
+        case .colorSetBackground(let index):
+            return CSI + "48;5;\(index)m"
+        case .colorSetForegroundRGB(let r, let g, let b):
+            return CSI + "38;2;\(r);\(g);\(b)m"
+        case .colorSetBackgroundRGB(let r, let g, let b):
+            return CSI + "48;2;\(r);\(g);\(b)m"
+            
         }
     }
 }
