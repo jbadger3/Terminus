@@ -24,7 +24,11 @@ public class Terminal {
         termios.restoreOriginalSettings()
     }
     
-    ///Sets the input mode and echo of the terminal
+    /**
+    Sets the input mode and echo of the terminal.
+     
+     
+     */
     public func set(inputMode: InputMode, echo: Bool = false) {
         termios.set(inputMode, echo: echo)
         self.inputMode = inputMode
@@ -32,33 +36,20 @@ public class Terminal {
     }
 
 
-    /**
-        similar to getch in ncurses
-     */
+    /**Awaits a keypress from the user and returns the input as `Key`**/
     public func getKey() -> Key? {
         /*
-         Using 32 bytes allows for some of the bigger grapheme clusters to be captured...such as 👨‍❤️‍👨 and 👨‍👨‍👧‍👧.  Not sure if this is the best choice, but works for now. Note: Echo mode spits out UTF-8 in 4 byte increments (single code point) to the console (at least in iTerm). */
+         Using 32 bytes allows for some of the bigger grapheme clusters to be captured...such as 👨‍❤️‍👨 and 👨‍👨‍👧‍👧.  Not sure if this is the best choice, but works for now. Note: Echo mode spits out UTF-8 in 4 byte increments (single code point) to the console (at least in iTerm), which means multi code point characters get spit out as two or more characters instead. */
         if let inputString = self.read(nBytes: 32) {
             return Key(rawValue: inputString)
         }
         return nil
     }
-
-    func write(_ string: inout String, toFileHandle fh: FileHandle) {
-        /*There are some issues with writing chunks of data larger than 10-15 bytes to standard output.  They end up garbled in the terminal output.*/
-        var str = string
-        #if os(macOS)
-        Darwin.write(fh.fileDescriptor, &str, str.lengthOfBytes(using: .utf8))
-        #elseif os(Linux)
-        Glibc.write(fh.fileDescriptor, &str, str.lengthOfBytes(using: .utf8))
-        #endif
-    }
     
-
-
+    // internal read function
     func read(nBytes: Int) -> String? {
         /*
-         Read is a low level system call and some argue not to use it, but I have yet to get fread, getchar, etc to work properly as the terminal essentially waits until nBytes are read.
+         The read function uses the low level system read call and some argue not to use it, but I have yet to get fread, getchar, etc to work properly in a scenario where the number of bytes expected to be in stdin varies or is unknown.
          */
         let bytesP = UnsafeMutableRawPointer.allocate(byteCount: nBytes, alignment: MemoryLayout<UInt8>.alignment).initializeMemory(as: UInt8.self, repeating: 0, count: nBytes)
         
@@ -68,14 +59,16 @@ public class Terminal {
         bytesRead = Darwin.read(standardInput.fileDescriptor, bytesP, nBytes)
         #elseif os(Linux)
         bytesRead = Glibc.read(standardInput.fileDescriptor, bytesP, nBytes)
+        #elseif os(Windows)
         #endif
-
 
         if bytesRead <= 0 {
             return nil
         }
         let bufferPointer = UnsafeRawBufferPointer(start: bytesP, count: bytesRead)
-        /* useful for debugging
+        
+        /*
+        //useful for debugging
          for (index, byte) in bufferPointer.enumerated() {
              print("byte \(index): \(byte)")
          }
@@ -83,6 +76,9 @@ public class Terminal {
         return String(bytes: bufferPointer, encoding: .utf8)
     }
     
+    /**
+     Prints output to the terminal styled with any provided attributes.
+     */
     public func write(_ string: String, attributes: [Attribute] = []) {
         let attributesStr = attributes.map{$0.stringValue()}.reduce(""){$0 + $1}
         print(attributesStr, terminator: "")
@@ -92,14 +88,22 @@ public class Terminal {
         fflush(stdout)
     }
 
+    /**
+     Executes a terminal control sequences / ANSI escape code
+     */
     public func executeControlSequence(_ controlSequence: ControlSequence) {
-        var cs = controlSequence.stringValue()
-        write(&cs, toFileHandle: standardOutput)
+        print(controlSequence.stringValue(), terminator: "")
+        fflush(stdout)
     }
 
+    /**
+     Executes a terminal control sequence where a response is expected.
+     
+     Example: The control sequence CSI 6n ("\u{1B}[6n ") is used to get the current position of the cursor which is returned as CSI#;#R ("\u{1B}[row;columnR").
+     */
     public func executeControlSequenceWithResponse(_ controlSequence: ControlSequence) -> String? {
-        var cs = controlSequence.stringValue()
-        write(&cs, toFileHandle: standardOutput)
+        print(controlSequence.stringValue(), terminator: "")
+        fflush(stdout)
         return read(nBytes: 64)
     }
     

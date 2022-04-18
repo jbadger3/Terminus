@@ -38,6 +38,49 @@ final class TerminalTests: XCTestCase {
         XCTAssertEqual(expectedEcho, finalEcho)
     }
     
+    func test_getKey_whenKeyPressed_returnsKey() throws {
+        mockTerminalIO(terminal: sut)
+        
+        //simple standard key press
+        var expectedKey = "t"
+        write(expectedKey, toFileHandle: sut.standardInput)
+        try! sut.standardInput.seek(toOffset: 0)
+        var recievedKey = sut.getKey()
+        XCTAssertEqual(recievedKey?.rawValue, expectedKey)
+        
+        //keypad up arrow
+        expectedKey = CSI + "A"
+        try! sut.standardInput.seek(toOffset: 0)
+        write(expectedKey, toFileHandle: sut.standardInput)
+        try! sut.standardInput.seek(toOffset: 0)
+        recievedKey = sut.getKey()
+        XCTAssertEqual(recievedKey?.rawValue, expectedKey)
+        
+        //multi codepoint character
+        expectedKey = "👨‍❤️‍👨"
+        try! sut.standardInput.seek(toOffset: 0)
+        write(expectedKey, toFileHandle: sut.standardInput)
+        try! sut.standardInput.seek(toOffset: 0)
+        recievedKey = sut.getKey()
+        XCTAssertEqual(recievedKey?.rawValue, expectedKey)
+    }
+    
+    func test_read_whenBytesReadIsZero_returnsNil() {
+        mockTerminalIO(terminal: sut) //dummy stdin file is empty
+        let recievedOutput = sut.read(nBytes: 32)
+        XCTAssertNil(recievedOutput)
+    }
+    
+    func test_read_givenInpupPopulated_returnsString() {
+        mockTerminalIO(terminal: sut)
+        let expectedString = "Test"
+        write(expectedString, toFileHandle: sut.standardInput)
+        try! sut.standardInput.seek(toOffset: 0)
+        
+        let recievedString = sut.read(nBytes: 32)
+        XCTAssertEqual(recievedString, expectedString)
+    }
+    
     
     
 }
