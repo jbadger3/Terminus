@@ -44,12 +44,16 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     }
     
     //terminal related
+    ///Device attributes
+    case deviceAtributes
     ///Performs a 'soft' terminal reset
     case softReset
     ///Reports the size of the text area in characters
     case textAreaSize
     ///Reports the size of the screen in characters
     case screenSize
+    ///Sets the terminal character set
+    case designateCharacterSet(String)
     
     
     //cursor related
@@ -71,7 +75,19 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     case cursorRestore
     
     //erase functions
-    case eraseLine // CSI 2K
+    ///Erase from the cursor until end of screen (CSI + "0J")
+    case eraseToEndOfScreen
+    ///Erase from the cursor to beginning of screen (CSI + "1J")
+    case eraseToBeginningOfScreen
+    ///Erase the entire screen (CSI + "2J")
+    case eraseScreen
+    //ESC[3J    erase saved lines
+    ///Erase from the cursor to end of the line (CSI + "0K")
+    case eraseToEndOfLine
+    ///Erase start of line to the cursor (CSI + "1K")
+    case eraseStartOfLine
+    ///Erase the entire line (CSI + "2K")
+    case eraseLine
     
     //Color functions
     ///Sets the text color using the color table of the terminal
@@ -92,12 +108,16 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     
     public func stringValue() -> String {
         switch self {
+        case .deviceAtributes:
+            return CSI + "0c"
         case .softReset:
             return CSI + "!p"
         case .textAreaSize:
             return CSI + "18t"
         case .screenSize:
             return CSI + "19t"
+        case .designateCharacterSet(let characterSet):
+            return ESC + "(\(characterSet)C"
         case .cursorPosition:
             return CSI + "6n"
         case .cursorMoveToLocation(let location):
@@ -118,6 +138,16 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
             return ESC + "7"
         case .cursorRestore:
             return ESC + "8"
+        case .eraseToEndOfScreen:
+            return CSI + "0J"
+        case .eraseToBeginningOfScreen:
+            return CSI + "1J"
+        case .eraseScreen:
+            return CSI + "2J"
+        case .eraseToEndOfLine:
+            return CSI + "0K"
+        case .eraseStartOfLine:
+            return CSI + "1K"
         case .eraseLine:
             return CSI + "2K"
         case .colorSetForeground(let index):
