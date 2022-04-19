@@ -69,10 +69,10 @@ public enum Attribute: ControlSequence {
             return CSI + "28m"
         case .strikethrough:
             return CSI + "29m"
-        case .color( _):
-            return ""
+        case .color(_):
+            return CSI + "39m"
         case .colorPair(_):
-            return ""
+            return CSI + "39;49m"
         }
     }
     
