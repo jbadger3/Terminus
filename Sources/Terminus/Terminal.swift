@@ -13,7 +13,7 @@ public class Terminal {
     var standardOutput = FileHandle.standardOutput
     public private(set) var inputMode: InputMode
     public private(set) var echo: Bool
-
+    
     init(inputMode: InputMode = .cbreak, echo: Bool = false) {
         termios.set(inputMode, echo: echo)
         self.inputMode = inputMode
@@ -34,7 +34,7 @@ public class Terminal {
         self.inputMode = inputMode
         self.echo = echo
     }
-
+    
 
     /**Awaits a keypress from the user and returns the input as `Key`**/
     public func getKey() -> Key? {
@@ -77,12 +77,13 @@ public class Terminal {
     }
     
     /**
-     Prints output to the terminal styled with any provided attributes.
+     Prints output to the terminal styled with attributes such as text style and color.
      */
     public func write(_ string: String, attributes: [Attribute] = []) {
         let attributesStr = attributes.map{$0.stringValue()}.reduce(""){$0 + $1}
         print(attributesStr, terminator: "")
         print(string, terminator: "")
+        executeControlSequence(ANSIEscapeCode.eraseToEndOfLine) //prevents color bug when \n characters are present
         let resetAttributes = attributes.map{$0.resetValue()}.joined(separator: "")
         print(resetAttributes, terminator: "")
         fflush(stdout)
@@ -107,6 +108,10 @@ public class Terminal {
         return read(nBytes: 64)
     }
     
+    /**
+     Performs a soft terminal resent.
+     
+     */
     public func softReset() {
         executeControlSequence(ANSIEscapeCode.softReset)
     }

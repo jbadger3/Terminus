@@ -81,6 +81,4 @@ final class TerminalTests: XCTestCase {
         XCTAssertEqual(recievedString, expectedString)
     }
     
-    
-    
 }
