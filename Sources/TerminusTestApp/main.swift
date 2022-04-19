@@ -54,7 +54,7 @@ struct RunTests: ParsableCommand {
     }
     
     func runTestCases() {
-        let testCases = [CursorTests()]
+        let testCases = [CursorTests(), TerminalTests()]
         for testCase in testCases {
             testCase.runTests()
         }
