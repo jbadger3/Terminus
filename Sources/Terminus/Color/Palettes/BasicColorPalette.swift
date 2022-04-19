@@ -18,12 +18,13 @@ public struct BasicColorPalette: ColorPalette {
     
     public init() {}
     
-    public func allColors() -> [Color]  {
-        var colors: [Color] = []
+    public func allColors() -> [(name: String, color: Color)]  {
+        var colors: [(String, Color)] = []
         let mirror = Mirror(reflecting: self)
         for child in mirror.children {
-            if let color = child.value as? Color {
-                colors.append(color)
+            if let color = child.value as? Color,
+               let name = child.label  {
+                colors.append((name, color))
             }
         }
         return colors

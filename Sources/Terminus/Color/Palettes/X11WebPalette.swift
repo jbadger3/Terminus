@@ -96,7 +96,7 @@ public struct X11WebPalette: ColorPalette {
     public let LightSteelBlue = Color(r: 176, g: 196, b: 222)
     public let LightBlue = Color(r: 173, g: 216, b: 230)
     public let PowderBlue = Color(r: 176, g: 224, b: 230)
-    public let ndigo = Color(r: 75, g: 0, b: 130)
+    public let Indigo = Color(r: 75, g: 0, b: 130)
     public let Purple = Color(r: 128, g: 0, b: 128)
     public let DarkMagenta = Color(r: 139, g: 0, b: 139)
     public let DarkViolet = Color(r: 148, g: 0, b: 211)
@@ -144,12 +144,13 @@ public struct X11WebPalette: ColorPalette {
 
     public init() {}
 
-    public func allColors() -> [Color]  {
-        var colors: [Color] = []
+    public func allColors() -> [(name: String, color: Color)]  {
+        var colors: [(String, Color)] = []
         let mirror = Mirror(reflecting: self)
         for child in mirror.children {
-            if let color = child.value as? Color {
-                colors.append(color)
+            if let color = child.value as? Color,
+               let name = child.label {
+                colors.append((name, color))
             }
         }
         return colors
