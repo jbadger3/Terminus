@@ -13,7 +13,7 @@ import Foundation
  */
 public protocol ColorPalette {
     ///Returns an array of all colors avaible in the color palette.
-    func allColors() -> [Color]
+    func allColors() -> [(name: String, color: Color)]
     ///Returns the default ``ColorPair`` for the palette.
     func defaultPair() -> ColorPair
 }
