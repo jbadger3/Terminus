@@ -5,7 +5,7 @@
 import Foundation
 
 /**
- 
+ A color as represented in RGB.
  */
 public struct Color: Equatable, Hashable {
     ///Red intensity  0...255

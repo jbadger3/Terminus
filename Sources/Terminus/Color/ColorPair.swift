@@ -4,13 +4,12 @@
 
 import Foundation
 
-
 /**
- ColorPairs are used in conjuction with other ``Attributes`` such as bold or underline to change the appearce of text in the terminal.
+ ColorPairs are used in conjuction with other `Attributes` such as bold or underline to change the appearce of text in the terminal.
  
- The default ColorPair for most terminals is white (foreground) on black (background).  Colors for each ColorPair should be instantiated from a ColorPalette.
-
- `example usage`
+ The default ColorPair for most terminals is white (foreground) on black (background).  Colors for each ``ColorPair`` can be selected from a ``ColorPalette`` or formed manually using custom `Colors`.
+ 
+ Example
  ````
  import Terminus
  let palette = BasicColorPalette()
