@@ -5,6 +5,7 @@
 //  Created by Jonathan Badger on 3/23/22.
 //
 
+///Used to specify the appearance of characters on screen.  Mutliple attributes can be combined for varying effects.
 public enum Attribute: ControlSequence {
     case resetToDefault //CSI 0m
     case bold //CSI 1m
@@ -18,6 +19,7 @@ public enum Attribute: ControlSequence {
     case color(Color)
     case colorPair(ColorPair)
     
+    ///A string representation of the ANSI escape sequence
     public func stringValue() -> String {
         switch self {
         case .resetToDefault:
@@ -49,6 +51,7 @@ public enum Attribute: ControlSequence {
         }
     }
     
+    ///A string representation of the ANSI escape sequence used to turn off the associated attribute.  This function is used by Terminal.write and in general should not need to be manually called.
     public func resetValue() -> String {
         switch self {
         case .resetToDefault:
@@ -75,9 +78,4 @@ public enum Attribute: ControlSequence {
             return CSI + "39;49m"
         }
     }
-    
-    
-    
-     
-    
 }

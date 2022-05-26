@@ -1,9 +1,18 @@
-# Terminus
+#Terminus#
+
 A Swift package for developing command line applications in swift.
 
+##Description##
 
+##Installation##
 
-### Credits: Other packages where code and inspiration were drawn
+##Examples##
+
+##Roadmap##
+
+##Credits##
+
+ Other packages where code and inspiration were drawn
 ## https://github.com/objecthub/swift-commandlinekit
 https://github.com/Ponyboy47/Termios - a Swifty wrapper for termios
 
