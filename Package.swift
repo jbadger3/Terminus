@@ -11,7 +11,7 @@ let package = Package(
         .library(
             name: "Terminus",
             targets: ["Terminus"]),
-        .executable(name: "TerminusTestsApp", targets: ["TerminusTestsApp"])
+        .executable(name: "TerminusTest", targets: ["TerminusTestApp"])
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.1.2")
@@ -20,7 +20,7 @@ let package = Package(
         .target(
             name: "Terminus",
             dependencies: []),
-        .executableTarget(name: "TerminusTestsApp", dependencies: ["Terminus", .product(name: "ArgumentParser", package: "swift-argument-parser")]),
+        .executableTarget(name: "TerminusTestApp", dependencies: ["Terminus", .product(name: "ArgumentParser", package: "swift-argument-parser")]),
         .testTarget(
            name: "TerminusTests",
            dependencies: ["Terminus"]),

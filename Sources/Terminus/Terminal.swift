@@ -36,7 +36,9 @@ public class Terminal {
     }
     
 
-    /**Awaits a keypress from the user and returns the input as `Key`**/
+    /**
+     Awaits a keypress from the user and returns the input as `Key`
+     */
     public func getKey() -> Key? {
         /*
          Using 32 bytes allows for some of the bigger grapheme clusters to be captured...such as 👨‍❤️‍👨 and 👨‍👨‍👧‍👧.  Not sure if this is the best choice, but works for now. Note: Echo mode spits out UTF-8 in 4 byte increments (single code point) to the console (at least in iTerm), which means multi code point characters get spit out as two or more characters instead. */
@@ -77,7 +79,7 @@ public class Terminal {
     }
     
     /**
-     Prints output to the terminal styled with attributes such as text style and color.
+     Prints output to the terminal with attributes such as text style and color.
      */
     public func write(_ string: String, attributes: [Attribute] = []) {
         let attributesStr = attributes.map{$0.stringValue()}.reduce(""){$0 + $1}

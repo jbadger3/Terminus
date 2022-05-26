@@ -53,8 +53,11 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     ///Reports the size of the screen in characters
     case screenSize //CSI + "19t"
     ///Sets the terminal character set
-    case designateCharacterSet(String) //ESC + "({characterSet}"
-    
+    case designateCharacterSet(String)
+    ///Uses the alternate screen buffer
+    case useAlternateScreenBuffer
+    ///Uses the main screen buffer
+    case useMainScreenBuffer
     
     //cursor related
     ///Gets the current position of the cursor
@@ -109,6 +112,7 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     ///The string representation of an ANSI escape code
     public func stringValue() -> String {
         switch self {
+        //terminal related
         case .deviceAtributes:
             return CSI + "0c"
         case .softReset:
@@ -119,6 +123,11 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
             return CSI + "19t"
         case .designateCharacterSet(let characterSet):
             return ESC + "(\(characterSet)"
+        case .useAlternateScreenBuffer:
+            return CSI + "?1049h"
+        case .useMainScreenBuffer:
+            return CSI + "?1049l"
+        //cursor related
         case .cursorPosition:
             return CSI + "6n"
         case .cursorMoveToLocation(let location):
