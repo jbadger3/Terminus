@@ -21,7 +21,7 @@ I am by no means an expert in all things terminal, nor can I say that I haven't 
 
 * [Termios](https://github.com/Ponyboy47/Termios) - a more comprehensive Swifty wrapper for termios than I have implemented here.
 
-* [XTerm control sequences] https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+* [XTerm control sequences](https://invisible-island.net/xterm/ctlseqs/ctlseqs.html) One of the definitive sources of console related info IMO.
 
 * The standard C library [read function] (https://pubs.opengroup.org/onlinepubs/009604599/functions/read.html)
 
