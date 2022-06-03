@@ -1,5 +1,8 @@
 import Foundation
 
+/**
+ The 256 color palette from the XTerm console.
+ */
 public struct XTermPalette: ColorPalette {
     public let Black = Color(r: 0, g: 0, b: 0)
     public let Maroon = Color(r: 128, g: 0, b: 0)

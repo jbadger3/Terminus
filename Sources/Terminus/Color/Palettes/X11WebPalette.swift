@@ -1,5 +1,8 @@
 import Foundation
 
+/**
+ The X11WebPallet contains 256 color names originally designed for the world wide web.  See the [Wikipedia page](https://en.wikipedia.org/wiki/Web_colors) for more info.
+ */
 public struct X11WebPalette: ColorPalette {
     public let MediumVioletRed = Color(r: 199, g: 21, b: 133)
     public let DeepPink = Color(r: 255, g: 20, b: 147)

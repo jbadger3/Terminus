@@ -4,9 +4,8 @@
 
 import Foundation
 
-
 /**
- Handles setting and restoring terminal behavior on unix based systems.
+ Handles setting and restoring terminal behavior on unix based systems using termios.
  */
 public struct Termios {
     let fd = FileHandle.standardInput.fileDescriptor
@@ -18,6 +17,7 @@ public struct Termios {
         currentTermios = originalTermios
     }
     
+    ///Sets the ``InputMode`` and echoing for the terminal
     mutating func set(_ inputMode: InputMode, echo: Bool) {
         #if os(macOS)
         switch inputMode {
@@ -54,7 +54,7 @@ public struct Termios {
         tcsetattr(fd, TCSADRAIN, &currentTermios)
     }
 
-    
+    ///Restores termios to its original settings
     mutating func restoreOriginalSettings() {
         tcsetattr(fd, TCSAFLUSH, &originalTermios)
     }

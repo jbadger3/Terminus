@@ -1,17 +1,17 @@
 import Foundation
 
-
 /**
- The starting point for a command line application.
-
-
+ The starting point and primary means of interaction for a command line application.
  */
 public class Terminal {
+    ///The shared singleton Terminal object.
     public static let shared = Terminal()
     private var termios = Termios()
     var standardInput = FileHandle.standardInput
     var standardOutput = FileHandle.standardOutput
+    ///The current input mode for the terminal (default is `.cbreak`).  See ``InputMode`` for a list of modes and their behavior.
     public private(set) var inputMode: InputMode
+    ///When `true` keypresses are immediately printed to the terminal (default is `false`)
     public private(set) var echo: Bool
     
     init(inputMode: InputMode = .cbreak, echo: Bool = false) {
@@ -25,9 +25,10 @@ public class Terminal {
     }
     
     /**
-    Sets the input mode and echo of the terminal.
+    Sets the ``InputMode`` and echo of the terminal.
      
-     
+     - Parameters:
+        - inputMode: indecates how the terminal should handle user input.
      */
     public func set(inputMode: InputMode, echo: Bool = false) {
         termios.set(inputMode, echo: echo)
@@ -35,9 +36,8 @@ public class Terminal {
         self.echo = echo
     }
     
-
     /**
-     Awaits a keypress from the user and returns the input as `Key`
+     Awaits a keypress from the user and returns the input as ``Key``
      */
     public func getKey() -> Key? {
         /*
@@ -110,25 +110,25 @@ public class Terminal {
         return read(nBytes: 64)
     }
     
-    /**
-     Performs a soft terminal resent.
-     
-     */
+    
+    ///Performs a soft terminal reset.
     public func softReset() {
         executeControlSequence(ANSIEscapeCode.softReset)
     }
     
-    public func screenSize() -> (x: Int, y: Int) {
-        guard let resultString = executeControlSequenceWithResponse(ANSIEscapeCode.screenSize) else {return (x:-1, y:-1)}
+    ///Returns the size of the screen as indicated by the terminal.  Returns (width: -1, height: -1) on failure.
+    public func screenSize() -> (width: Int, height: Int) {
+        guard let resultString = executeControlSequenceWithResponse(ANSIEscapeCode.screenSize) else {return (width:-1, height:-1)}
         let items = resultString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in: .letters)}.map{Int($0)}.filter({$0 != nil})
         if items.count == 2,
-            let x = items[1],
-            let y = items[0] {
-            return (x: x, y: y)
+            let width = items[1],
+            let height = items[0] {
+            return (width: width, height: height)
         }
-        return (x: -1, y: -1)
+        return (width: -1, height: -1)
     }
 
+    ///Performs a soft terminal reset, restores termios settings (Unix/MacOs), and exits the program.
     public func quit() {
         softReset()
         termios.restoreOriginalSettings()

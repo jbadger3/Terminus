@@ -5,7 +5,7 @@ import Foundation
 
 ///The terminal cursor
 public struct Cursor {
-    ///The current location of the cursor in the terminal
+    ///The current location of the cursor in the terminal.  Note the origin (1, 1) is located in the upper left corner of the screen.
     public var location: Location? {
         let terminal = Terminal.shared
         let controlSequence = ANSIEscapeCode.cursorPosition

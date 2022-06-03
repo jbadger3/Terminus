@@ -4,6 +4,7 @@
 import Foundation
 
 public extension String {
+    ///Removes ESC + "[" from a string
     func strippingCSI() -> String {
         return self.replacingOccurrences(of: CSI, with: "")
     }

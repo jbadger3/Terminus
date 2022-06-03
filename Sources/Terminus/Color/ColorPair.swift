@@ -10,14 +10,14 @@ import Foundation
  The default ColorPair for most terminals is white (foreground) on black (background).  Colors for each ``ColorPair`` can be selected from a ``ColorPalette`` or formed manually using custom `Colors`.
  
  Example
- ````
+ ```swift
  import Terminus
  let palette = BasicColorPalette()
  let colorPair = ColorPair(foreground: palette.Green, background: palette.Black)
  let terminal = Terminal.shared
  terminal.write("Hello greeen world", attributes: [.colorPair(colorPair)])
  let key = terminal.getKey()
- ````
+ ```
  */
 public struct ColorPair: Equatable {
     public let foreground: Color
