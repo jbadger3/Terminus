@@ -5,9 +5,18 @@
 import Foundation
 import Terminus
 
-enum VisualTestError: Error {
+enum VisualTestError: Error, LocalizedError {
     case inputError(message: String)
     case userDeclaredFailure(message: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .inputError(let message):
+            return "inputError. \(message)"
+        case .userDeclaredFailure(let message):
+            return "userDeclaredFailure. \(message)"
+        }
+    }
 }
 ///A simple y/n response function
 ///

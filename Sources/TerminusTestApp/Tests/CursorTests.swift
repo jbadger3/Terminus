@@ -36,7 +36,9 @@ class CursorTests: TestCase {
             Test(name: "test_setStyle_whenBlinkingBar_changesToBlinkingBar", testFunction: test_setStyle_whenBlinkingBar_changesToBlinkingBar, interactive: true),
             Test(name: "test_setStyle_whenSteadyBar_changesToSteadyBar", testFunction: test_setStyle_whenSteadyBar_changesToSteadyBar, interactive: true),
             Test(name: "test_setVisibility_whenFalse_hidesCursor", testFunction: test_setVisibility_whenFalse_hidesCursor, interactive: true),
-            Test(name: "test_setVisibility_whenTrue_showsCursor", testFunction: test_setVisibility_whenTrue_showsCursor, interactive: true)
+            Test(name: "test_setVisibility_whenTrue_showsCursor", testFunction: test_setVisibility_whenTrue_showsCursor, interactive: true),
+            Test(name: "test_save_whenRestoreCalled_returnsCursorToSavedLocation", testFunction: test_save_whenRestoreCalled_returnsCursorToSavedLocation),
+            Test(name: "test_restore_givenCursorStoredAt1025_returnsCursorTo1025", testFunction: test_restore_givenCursorStoredAt1025_returnsCursorTo1025)
         ]
     }
     
@@ -173,6 +175,35 @@ class CursorTests: TestCase {
         sut.set(visibility: true)
         try promptUserForVisualTest(prompt: "Can you see the cursor?")
     }
+    
+    func test_save_whenRestoreCalled_returnsCursorToSavedLocation() throws {
+        let startLocation = sut.location
+        sut.save()
+        
+        let terminal = Terminal.shared
+        terminal.write("Lets move the cursor a bit.", attributes: [])
+        let alteredLocation = sut.location
+        TAssertNotEqual(startLocation, alteredLocation)
+        let restoreCS = ANSIEscapeCode.cursorRestore
+        terminal.executeControlSequence(restoreCS)
+        let finalLocation = sut.location
+        TAssertEqual(startLocation, finalLocation)
+    }
+    
+    func test_restore_givenCursorStoredAt1025_returnsCursorTo1025() throws {
+        let testLocation = Location(x: 10, y: 25)
+        sut.move(toLocation: testLocation)
+        sut.save()
+        
+        sut.move(toLocation: Location(x: 1, y: 1))
+        TAssertEqual(Location(x: 1, y: 1), sut.location)
+        
+        sut.restore()
+        
+        TAssertEqual(sut.location, testLocation)
+    }
+    
+    
     
     
     

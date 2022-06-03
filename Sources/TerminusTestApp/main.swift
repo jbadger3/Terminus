@@ -18,6 +18,9 @@ struct RunTests: ParsableCommand {
     @Option(name: [.short, .customLong("logFile")], help: "Output file for test logs.")
     var logFile: String?
     
+    @Option(name: [.short, .customLong("skipInteractive")], help: "Skips interactive tests.")
+    var skipInteractive: Bool = false
+    
     @Option(name: [.short, .customLong("palette")], help: "Displays one of the built-in color paletts.  Options are 'basic', 'xterm', or 'x11web'")
     var paletteString: String?
     
@@ -55,8 +58,12 @@ struct RunTests: ParsableCommand {
     
     func runTestCases() {
         let testCases = [CursorTests(), TerminalTests()]
+        if skipInteractive {
+            let testLogger = TestLogger.shared
+            testLogger.log("Skipping Interactive Tests")
+        }
         for testCase in testCases {
-            testCase.runTests()
+            testCase.runTests(skipInteractive: skipInteractive)
         }
     }
     

@@ -28,4 +28,11 @@ func TAssertEqual<T>(_ expression1: T,_ expression2: T, line: UInt = #line) wher
     }
 }
 
+func TAssertNotEqual<T>(_ expression1: T, _ expression2: T, line: UInt = #line) where T: Equatable {
+    if expression1 == expression2 {
+        let testLogger = TestLogger.shared
+        testLogger.log("Line: \(line).  Assert not equal failed. \(expression1) equals \(expression2).")
+    }
+}
+
  

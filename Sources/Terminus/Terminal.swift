@@ -25,10 +25,7 @@ public class Terminal {
     }
     
     /**
-    Sets the ``InputMode`` and echo of the terminal.
-     
-     - Parameters:
-        - inputMode: indecates how the terminal should handle user input.
+    Sets the ``InputMode`` and echo behavior of the terminal.
      */
     public func set(inputMode: InputMode, echo: Bool = false) {
         termios.set(inputMode, echo: echo)

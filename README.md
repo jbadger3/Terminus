@@ -1,6 +1,7 @@
 # Terminus
-[![GitHub license](https://img.shields.io/github/license/jbadger3/SwiftAnnoy)]
+![GitHub license](https://img.shields.io/github/license/jbadger3/SwiftAnnoy) ![Version](https://img.shields.io/github/v/tag/jbadger3/Terminus)
 A Swift package for developing command line applications in swift.
+
 
 # Background
 

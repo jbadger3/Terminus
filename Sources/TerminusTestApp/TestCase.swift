@@ -22,9 +22,12 @@ class TestCase {
     func setUp() {}
     func tearDown() {}
     
-    func runTests() {
+    func runTests(skipInteractive: Bool = false) {
         let testLogger = TestLogger.shared
         testLogger.log(name)
+        if skipInteractive {
+            tests = tests.filter({!$0.interactive})
+        }
         for test in tests {
             run(test: test)
         }
@@ -38,7 +41,7 @@ class TestCase {
             try test.testFunction()
             
         } catch {
-            testLogger.log("name failed with error.\n\(error.localizedDescription)")
+            testLogger.log("failed with error.\n\(error.localizedDescription)")
         }
         tearDown()
     }
