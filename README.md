@@ -13,9 +13,13 @@ A Swift package for developing command line applications in swift.
 
 # Credits
 
-: Other packages where code and inspiration were drawn
-## https://github.com/objecthub/swift-commandlinekit
-https://github.com/Ponyboy47/Termios - a Swifty wrapper for termios
+I am by no means an expert in all things terminal, nor can I say that I haven't cherry picked bits of code that I liked from other projects. Packages and sources of inspiration include: 
+
+[ConsolKit](https://github.com/vapor/console-kit) from the folks that make Vapor, an http server in swift.
+
+[commandlinekit](https://github.com/objecthub/swift-commandlinekit) from Matthias Zenger over at Google
+
+[Termios](https://github.com/Ponyboy47/Termios) - a more comprehensive Swifty wrapper for termios than I have implemented here.
 
 # Resources
 * XTerm control sequences https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
