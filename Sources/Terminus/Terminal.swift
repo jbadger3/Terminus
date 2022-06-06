@@ -80,9 +80,7 @@ public class Terminal {
      */
     public func write(_ string: String, attributes: [Attribute] = []) {
         let attributesStr = attributes.map{$0.stringValue()}.reduce(""){$0 + $1}
-        print(attributesStr, terminator: "")
-        print(string, terminator: "")
-        executeControlSequence(ANSIEscapeCode.eraseToEndOfLine) //prevents color bug when \n characters are present
+        print(attributesStr + string, terminator: "")
         let resetAttributes = attributes.map{$0.resetValue()}.joined(separator: "")
         print(resetAttributes, terminator: "")
         fflush(stdout)
@@ -113,13 +111,25 @@ public class Terminal {
         executeControlSequence(ANSIEscapeCode.softReset)
     }
     
+    ///Returns the size of the screen in characters.  Returns(width: -1, height: -1) on failure.
+    public func textAreaSize() -> (width: Int, height: Int) {
+        guard let resultString = executeControlSequenceWithResponse(ANSIEscapeCode.textAreaSize) else { return (width:-1, height:-1)}
+        let items = resultString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in:.letters)}.map{Int($0)}.filter({$0 != nil})
+        if items.count == 3,
+           let width = items[2],
+           let height = items[1] {
+            return (width: width, height: height)
+        }
+        return (width: -1, height: -1)
+    }
+    
     ///Returns the size of the screen as indicated by the terminal.  Returns (width: -1, height: -1) on failure.
     public func screenSize() -> (width: Int, height: Int) {
         guard let resultString = executeControlSequenceWithResponse(ANSIEscapeCode.screenSize) else {return (width:-1, height:-1)}
         let items = resultString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in: .letters)}.map{Int($0)}.filter({$0 != nil})
-        if items.count == 2,
-            let width = items[1],
-            let height = items[0] {
+        if  items.count == 3,
+            let width = items[2],
+            let height = items[1] {
             return (width: width, height: height)
         }
         return (width: -1, height: -1)
