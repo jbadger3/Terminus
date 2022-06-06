@@ -36,7 +36,6 @@ class CursorTests: XCTestCase {
         write(STDOUT_FILENO, &saveCS, saveCS.lengthOfBytes(using: .utf8))
         let expectedLocation = Location(x: 25, y: 30)
         
-        
         sut.move(toLocation: expectedLocation)
         let finalLocation = sut.location
         

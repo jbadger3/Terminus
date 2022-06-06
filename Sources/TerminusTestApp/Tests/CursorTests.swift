@@ -137,7 +137,7 @@ class CursorTests: TestCase {
     func test_setStyle_whenBlinkingBlockDefault_changesToBlinkingBlock() throws {
         sut.set(style: .steady_bar)
         sut.set(style: .blinking_block_default)
-        try promptUserForVisualTest(prompt: "Is the cursor a blinking bock?")
+        try promptUserForVisualTest(prompt: "Is the cursor a blinking block?")
     }
     
     func test_setStyle_whenSteadyBlock_changesToSteadyBlock() throws {
@@ -163,7 +163,6 @@ class CursorTests: TestCase {
     func test_setStyle_whenSteadyBar_changesToSteadyBar() throws {
         sut.set(style: .steady_bar)
         try promptUserForVisualTest(prompt: "Is the cursor a steady bar?")
-        
     }
     
     func test_setVisibility_whenFalse_hidesCursor() throws {
