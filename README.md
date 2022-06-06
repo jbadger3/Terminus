@@ -30,3 +30,4 @@ I am by no means an expert in all things terminal, nor can I say that I haven't 
 * On [buffering of low level input streams](http://www.pixelbeat.org/programming/stdio_buffering/) at the kernel level 
 
 * Summary of [ANSI Codes](https://www.real-world-systems.com/docs/ANSIcode.html)
+
