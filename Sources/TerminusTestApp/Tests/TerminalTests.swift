@@ -29,7 +29,7 @@ class TerminalTests: TestCase {
     }
     
     func test_write_givenOneStyleAttribute_appliesCorrectStyling() throws {
-        sut.executeControlSequence(ANSIEscapeCode.eraseScreen)
+        sut.executeControlSequence(ANSIEscapeCode.clearScreen)
         sut.executeControlSequence(ANSIEscapeCode.cursorMoveToHome)
         
         sut.write("Single style attribute tests.")
@@ -46,7 +46,7 @@ class TerminalTests: TestCase {
     }
     
     func test_write_givenMultipleStyleAttributes_appliesCorrectStyling() throws {
-        sut.executeControlSequence(ANSIEscapeCode.eraseScreen)
+        sut.executeControlSequence(ANSIEscapeCode.clearScreen)
         sut.executeControlSequence(ANSIEscapeCode.cursorMoveToHome)
         sut.write("Multiple style attribute tests.\n", attributes: [])
         sut.write("Bold italic\n", attributes: [.bold, .italic])
@@ -57,7 +57,7 @@ class TerminalTests: TestCase {
     }
     
     func test_write_givenStyleAndColorAttributes_appliesColorsAndStylesCorrectly() throws {
-        sut.executeControlSequence(ANSIEscapeCode.eraseScreen)
+        sut.executeControlSequence(ANSIEscapeCode.clearScreen)
         sut.executeControlSequence(ANSIEscapeCode.cursorMoveToHome)
         sut.write("Style and Color tests.\n", attributes: [])
         let palette = XTermPalette()
@@ -67,10 +67,11 @@ class TerminalTests: TestCase {
     }
     
     func test_textAreaSize_returnsSize() throws {
-        sut.executeControlSequence(ANSIEscapeCode.eraseScreen)
+        sut.executeControlSequence(ANSIEscapeCode.clearScreen)
         sut.executeControlSequence(ANSIEscapeCode.cursorMoveToHome)
         let size = sut.textAreaSize()
-        TAssertNotEqual(size, (width: -1, height: -1))
+        TAssertNotEqual(size.width, -1)
+        TAssertNotEqual(size.height, -1)
     }
  
 }

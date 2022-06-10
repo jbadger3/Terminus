@@ -12,17 +12,30 @@ enum Palette: String {
     case x11web
 }
 
+enum TestOption: String {
+    case all
+    case terminal
+    case cursor
+    case menu
+}
+
 
 
 struct RunTests: ParsableCommand {
     @Option(name: [.short, .customLong("logFile")], help: "Output file for test logs.")
     var logFile: String?
     
+    @Option(name: [.short, .customLong("test")], help: "Run tests.  Options are 'all' ,'terminal', 'cursor', or 'menu'")
+    var testString: String?
+    
     @Option(name: [.short, .customLong("skipInteractive")], help: "Skips interactive tests.")
     var skipInteractive: Bool = false
     
     @Option(name: [.short, .customLong("palette")], help: "Displays one of the built-in color paletts.  Options are 'basic', 'xterm', or 'x11web'")
     var paletteString: String?
+    
+    @Option(name: [.short, .customLong("menu")], help: "Run menu test")
+    var menu: Bool = false
     
     mutating func run() throws {
         if let paletteString = paletteString {
@@ -36,10 +49,24 @@ struct RunTests: ParsableCommand {
                     showColors(colorPalette: X11WebPalette() as ColorPalette)
                 }
             } else { print("Palette \(paletteString) unknown.  Please choose one from (basic, xterm, x11web)")}
-        } else {
+        }
+        if let testString = testString,
+           let testOption = TestOption(rawValue: testString) {
             setUp()
-            runTestCases()
+            switch testOption {
+            case .all:
+                runTestCases(testCases: [TerminalTests(), CursorTests(), MenuTests()])
+            case .terminal:
+                runTestCases(testCases: [TerminalTests()])
+            case .cursor:
+                runTestCases(testCases: [CursorTests()])
+            case .menu:
+                runTestCases(testCases: [MenuTests()])
+            }
             tearDown()
+        }
+        
+        if menu {
             
         }
     }
@@ -56,8 +83,7 @@ struct RunTests: ParsableCommand {
         testLogger.fileHandle = fileHandle
     }
     
-    func runTestCases() {
-        let testCases = [CursorTests(), TerminalTests()]
+    func runTestCases(testCases: [TestCase]) {
         if skipInteractive {
             let testLogger = TestLogger.shared
             testLogger.log("Skipping Interactive Tests")
