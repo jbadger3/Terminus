@@ -20,11 +20,11 @@ enum VisualTestError: Error, LocalizedError {
 }
 ///A simple y/n response function
 ///
-func promptUserForVisualTest(prompt: String) throws {
+func promptUserForVisualTest(prompt: String, location: Location = Location(x: 0, y: 500)) throws {
     let terminal = Terminal.shared
     let cursor = Cursor()
-    //move cursor to lower left of screen
-    cursor.move(toLocation: Location(x: 0, y: 500))
+    //move cursor to display location (defaults to lower left of screen)
+    cursor.move(toLocation: location)
     terminal.executeControlSequence(ANSIEscapeCode.eraseLine)
     terminal.write("\(prompt) (y/n): ")
     if let key = terminal.getKey() {
