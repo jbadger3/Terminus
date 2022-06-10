@@ -6,6 +6,8 @@ import Foundation
 public class Terminal {
     ///The shared singleton Terminal object.
     public static let shared = Terminal()
+    ///The cursor associated with the terminal
+    public let cursor = Cursor()
     private var termios = Termios()
     var standardInput = FileHandle.standardInput
     var standardOutput = FileHandle.standardOutput
@@ -66,13 +68,16 @@ public class Terminal {
         }
         let bufferPointer = UnsafeRawBufferPointer(start: bytesP, count: bytesRead)
         
+        let str = String(bytes: bufferPointer, encoding: .utf8)
+        fflush(stdin)
+        
         /*
         //useful for debugging
          for (index, byte) in bufferPointer.enumerated() {
              print("byte \(index): \(byte)")
          }
          */
-        return String(bytes: bufferPointer, encoding: .utf8)
+        return str
     }
     
     /**
@@ -133,6 +138,11 @@ public class Terminal {
             return (width: width, height: height)
         }
         return (width: -1, height: -1)
+    }
+    
+    ///Clears the contents of the current screen
+    public func clearScreen() {
+        executeControlSequence(ANSIEscapeCode.clearScreen)
     }
 
     ///Performs a soft terminal reset, restores termios settings (Unix/MacOs), and exits the program.
