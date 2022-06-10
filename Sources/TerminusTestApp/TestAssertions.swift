@@ -35,4 +35,17 @@ func TAssertNotEqual<T>(_ expression1: T, _ expression2: T, line: UInt = #line) 
     }
 }
 
+func TAssertNil<T>(_ argument: T?, line: UInt = #line) {
+    if argument != nil {
+        let testLogger = TestLogger.shared
+        testLogger.log("Line: \(line).  Assert Nil failed. \(String(describing: argument))")
+    }
+}
+
+func TAssertNotNil<T>(_ argument: T?, line: UInt = #line) {
+    if argument == nil {
+        let testLogger = TestLogger.shared
+        testLogger.log("Line: \(line).  Assert Not Nil failed. \(String(describing: argument))")
+    }
+}
  
