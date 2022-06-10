@@ -58,6 +58,10 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     case useAlternateScreenBuffer
     ///Uses the main screen buffer
     case useMainScreenBuffer
+    ///Scroll up `n` lines.  Blank lines are filled in from the bottom
+    case scrollUp(n: Int) //CSI + "{n}S"
+    ///Scroll down `n` lines.   Blank lines are filled in from the top
+    case scrollDown(n: Int) //CSI + "{n}T"
     
     //cursor related
     ///Gets the current position of the cursor
@@ -83,7 +87,7 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
     ///Erase from the cursor to beginning of screen
     case eraseToBeginningOfScreen //CSI + "1J"
     ///Erase the entire screen
-    case eraseScreen //CSI + "2J"
+    case clearScreen //CSI + "2J"
     //ESC[3J    erase saved lines
     ///Erase from the cursor to end of the line
     case eraseToEndOfLine //CSI + "0K"
@@ -127,6 +131,10 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
             return CSI + "?1049h"
         case .useMainScreenBuffer:
             return CSI + "?1049l"
+        case .scrollUp(let n):
+            return CSI + "\(n)S"
+        case .scrollDown(let n):
+            return CSI + "\(n)T"
         //cursor related
         case .cursorPosition:
             return CSI + "6n"
@@ -152,7 +160,7 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
             return CSI + "0J"
         case .eraseToBeginningOfScreen:
             return CSI + "1J"
-        case .eraseScreen:
+        case .clearScreen:
             return CSI + "2J"
         case .eraseToEndOfLine:
             return CSI + "0K"
