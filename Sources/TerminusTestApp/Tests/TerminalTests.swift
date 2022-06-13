@@ -21,11 +21,22 @@ class TerminalTests: TestCase {
     
     init() {
         super.init(name: "TerminalTests")
-        tests = [Test(name: "test_write_givenOneStyleAttribute_appliesCorrectStyling", testFunction: test_write_givenOneStyleAttribute_appliesCorrectStyling, interactive: true),
+        tests = [
+                Test(name: "test_getLine_works", testFunction: test_getLine_works, interactive: true),
+                Test(name: "test_write_givenOneStyleAttribute_appliesCorrectStyling", testFunction: test_write_givenOneStyleAttribute_appliesCorrectStyling, interactive: true),
                  Test(name: "test_write_givenMultipleStyleAttributes_appliesCorrectStyling", testFunction: test_write_givenMultipleStyleAttributes_appliesCorrectStyling, interactive: true),
                  Test(name: "test_write_givenStyleAndColorAttributes_appliesColorsAndStylesCorrectly", testFunction: test_write_givenStyleAndColorAttributes_appliesColorsAndStylesCorrectly, interactive: true),
                  Test(name: "test_textAreaSize_returnsSize", testFunction: test_textAreaSize_returnsSize, interactive: false)
         ]
+    }
+    
+    func test_getLine_works() throws {
+        //sut.set(inputMode: .lineEditing, echo: true)
+        sut.clearScreen()
+        sut.cursor.moveToHome()
+        sut.write("Type something then press enter: ")
+        let line = sut.getLine()
+        try promptUserForVisualTest(prompt: "Did it wait till you pressed enter?")
     }
     
     func test_write_givenOneStyleAttribute_appliesCorrectStyling() throws {
@@ -73,5 +84,6 @@ class TerminalTests: TestCase {
         TAssertNotEqual(size.width, -1)
         TAssertNotEqual(size.height, -1)
     }
+    
  
 }

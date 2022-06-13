@@ -179,7 +179,6 @@ class CursorTests: TestCase {
         let startLocation = sut.location
         sut.save()
         
-        let terminal = Terminal.shared
         terminal.write("Lets move the cursor a bit.", attributes: [])
         let alteredLocation = sut.location
         TAssertNotEqual(startLocation, alteredLocation)

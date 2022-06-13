@@ -47,6 +47,13 @@ public class Terminal {
         return nil
     }
     
+    /**
+        Awaits a press of the return key from the user and returns the captured input.
+     */
+    public func getLine(strippingNewline: Bool = true) -> String? {
+        return readLine(strippingNewline: strippingNewline)
+    }
+    
     // internal read function
     func read(nBytes: Int) -> String? {
         /*
