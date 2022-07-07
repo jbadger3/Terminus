@@ -9,14 +9,23 @@ public struct Cursor {
     public var location: Location? {
         let terminal = Terminal.shared
         let controlSequence = ANSIEscapeCode.cursorPosition
-        guard let locationString = terminal.executeControlSequenceWithResponse(controlSequence) else { return nil }
-        let items = locationString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in: .letters)}.map{Int($0)}.filter({$0 != nil})
-        if items.count == 2,
-            let x = items[1],
-            let y = items[0] {
-            return Location(x: x, y: y)
+        do {
+            let locationString = try terminal.executeControlSequenceWithResponse(controlSequence)
+            let items = locationString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in: .letters)}.map{Int($0)}.filter({$0 != nil})
+            if items.count == 2,
+                let x = items[1],
+                let y = items[0] {
+                return Location(x: x, y: y)
+            } else {
+                throw TerminalError.failedToParseTerminalResponse(message: "Failed to parse response for cursor location.  Response: \(locationString)")
+            }
+        } catch {
+            return nil
+            //throw TerminalError.failedToReadTerminalResponse(message: "")
         }
-        return nil
+
+
+       
     }
 
     public init() {}

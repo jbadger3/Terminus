@@ -32,7 +32,7 @@ class CursorTests: XCTestCase {
     
     func test_moveToLocation_movesToSpecifiedLocation() {
         //first save cursor
-        var saveCS = ESC + "7"
+        var saveCS = Esc + "7"
         write(STDOUT_FILENO, &saveCS, saveCS.lengthOfBytes(using: .utf8))
         let expectedLocation = Location(x: 25, y: 30)
         
@@ -40,7 +40,7 @@ class CursorTests: XCTestCase {
         let finalLocation = sut.location
         
         XCTAssertEqual(expectedLocation, finalLocation)
-        var restoreCS = ESC + "8"
+        var restoreCS = Esc + "8"
         write(STDOUT_FILENO, &restoreCS, restoreCS.lengthOfBytes(using: .utf8))
     }
 }
