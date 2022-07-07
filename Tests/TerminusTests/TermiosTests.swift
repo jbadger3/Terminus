@@ -44,76 +44,22 @@ public final class TermiosTests: XCTestCase {
         XCTAssertEqual(sut.originalTermios.c_cflag, startTermios.c_cflag)
         XCTAssertEqual(sut.originalTermios.c_lflag, startTermios.c_lflag)
     }
+    
+    func test_set_turnsCanonicalAndEchoOffAndTurnsISIGOne() {
+        startTermios.c_lflag = ~UInt(ISIG)
+        startTermios.c_lflag |= UInt(ICANON | ECHO)
 
-    func test_setInputMode_whenEchoTrue_setsTerminalECHOAndECHOEFlagsinCurrentTermiosAndTermianl() {
-        startTermios.c_lflag &= ~FlagInt(ECHO | ECHOE)
         tcsetattr(fd, TCSANOW, &startTermios)
         sut = Termios()
-        //Check bitwise to make sure ECHO and ECHOE are off
-        XCTAssertTrue(lflagBitsOff(flags: [ECHO, ECHOE], termiosStruct: sut.currentTermios))
-
-        sut.set(.cbreak, echo: true)
-        XCTAssertTrue(lflagBitsOn(flags: [ECHO, ECHOE], termiosStruct: sut.currentTermios))
-
+        XCTAssertTrue(lflagBitsOn(flags: [ICANON, ECHO], termiosStruct: startTermios))
+        XCTAssertTrue(lflagBitsOff(flags: [ISIG], termiosStruct: startTermios))
+        
+        sut.set()
         var terminalTermios = termios()
         tcgetattr(fd, &terminalTermios)
-        XCTAssertTrue(lflagBitsOn(flags: [ECHO, ECHO], termiosStruct: terminalTermios))
+        XCTAssertTrue(lflagBitsOn(flags: [ISIG], termiosStruct: terminalTermios))
+        XCTAssertTrue(lflagBitsOff(flags: [ICANON, ECHO], termiosStruct: terminalTermios))
+        
     }
 
-    func test_setInputMode_whenModeRaw_turnsOffICANONAndISIGInTerminal() {
-        startTermios.c_lflag &= ~FlagInt(ICANON | SIGINT)
-        tcsetattr(fd, TCSANOW, &startTermios)
-        sut = Termios()
-        XCTAssertTrue(lflagBitsOff(flags: [ICANON, SIGINT], termiosStruct: sut.currentTermios))
-
-        sut.set(.raw, echo: false)
-
-        XCTAssertTrue(lflagBitsOff(flags: [ICANON, SIGINT], termiosStruct: sut.currentTermios))
-        tcgetattr(fd, &startTermios)
-        XCTAssertTrue(lflagBitsOff(flags: [ICANON, SIGINT], termiosStruct: startTermios))
-    }
-
-    func test_setInputMode_whenCBreak_turnsOFFICANONAndTurnsONISIGInTerminal() {
-        startTermios.c_lflag |= FlagInt(ICANON)
-        startTermios.c_lflag &= ~FlagInt(ISIG)
-        tcsetattr(fd, TCSANOW, &startTermios)
-        sut = Termios()
-        XCTAssertTrue(lflagBitsOn(flags: [ICANON], termiosStruct: sut.currentTermios))
-        XCTAssertTrue(lflagBitsOff(flags: [ISIG], termiosStruct: sut.currentTermios))
-
-        sut.set(.cbreak, echo: false)
-
-        tcgetattr(fd, &startTermios)
-        XCTAssertTrue(lflagBitsOff(flags: [ICANON], termiosStruct: startTermios))
-        XCTAssertTrue(lflagBitsOn(flags: [ISIG], termiosStruct: startTermios))
-    }
-
-    func test_setInputMode_whenLineEditing_turnsOnICANONAndISIGInTerminal() {
-        startTermios.c_lflag &= ~FlagInt(ICANON | ISIG)
-        tcsetattr(fd, TCSANOW, &startTermios)
-        sut = Termios()
-        XCTAssertTrue(lflagBitsOff(flags: [ICANON, ISIG], termiosStruct: sut.currentTermios))
-
-        sut.set(.lineEditing, echo: false)
-
-        tcgetattr(fd, &startTermios)
-        XCTAssertTrue(lflagBitsOn(flags: [ICANON, ISIG], termiosStruct: startTermios))
-    }
-
-    func test_restoreOriginalSettings_givenAlteredLFlags_returnsTerminalToOriginalSettings() throws {
-        XCTAssertEqual(sut.originalTermios.c_lflag, startTermios.c_lflag)
-
-        var termiosCopy = startTermios!
-
-        termiosCopy.c_lflag = 9
-        tcsetattr(fd, TCSANOW, &termiosCopy)
-        tcgetattr(STDIN_FILENO, &termiosCopy)
-
-        XCTAssertNotEqual(sut.originalTermios.c_lflag, termiosCopy.c_lflag)
-
-        sut.restoreOriginalSettings()
-
-        tcgetattr(fd, &startTermios)
-        XCTAssertEqual(sut.originalTermios.c_lflag, startTermios.c_lflag)
-    }
 }

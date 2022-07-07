@@ -18,38 +18,15 @@ public struct Termios {
     }
     
     ///Sets the ``InputMode`` and echoing for the terminal
-    mutating func set(_ inputMode: InputMode, echo: Bool) {
+    mutating func set() {
         #if os(macOS)
-        switch inputMode {
-        case .raw:
-            currentTermios.c_lflag &= ~UInt(ICANON | ISIG)
-        case .cbreak:
-            currentTermios.c_lflag &= ~UInt(ICANON)
-            currentTermios.c_lflag |= UInt(ISIG)
-        case .lineEditing:
-            currentTermios.c_lflag |= UInt(ICANON | ISIG)
-        }
-        if echo {
-            currentTermios.c_lflag |= UInt(ECHO | ECHOE)
-        } else {
-            currentTermios.c_lflag &= ~UInt(ECHO)
-        }
+        currentTermios.c_lflag &= ~UInt(ICANON | ECHO)
+        currentTermios.c_lflag |= UInt(ISIG)
+
         #elseif os(Linux)
-        switch inputMode {
-        case .raw:
-            currentTermios.c_lflag &= ~UInt32(ICANON | ISIG)
-        case .cbreak:
-            currentTermios.c_lflag &= ~UInt32(ICANON)
-            currentTermios.c_lflag |= UInt32(ISIG)
-        case .lineEditing:
-            currentTermios.c_lflag |= UInt32(ICANON | ISIG)
-        }
-        if echo {
-            currentTermios.c_lflag |= UInt32(ECHO | ECHOE)
-        } else {
-            currentTermios.c_lflag &= ~UInt32(ECHO)
-        }
-        
+        currentTermios.c_lflag &= ~UInt32(ICANON | ECHO)
+        currentTermios.c_lflag |= UInt32(ISIG)
+
         #endif
         tcsetattr(fd, TCSADRAIN, &currentTermios)
     }
