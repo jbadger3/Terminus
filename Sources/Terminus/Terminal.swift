@@ -99,6 +99,17 @@ public class Terminal {
         print(resetAttributes, terminator: "")
         fflush(stdout)
     }
+    
+    /**
+     TODO: Cool docs go here
+     */
+    public func write(attributedString: AttributedString) {
+        for run in attributedString.runs {
+            let subString = String(attributedString[run.range].characters)
+            let attributes = run.terminalTextAttributes ?? []
+            write(subString, attributes: attributes)
+        }
+    }
 
     /**
      Executes a terminal control sequences / ANSI escape code

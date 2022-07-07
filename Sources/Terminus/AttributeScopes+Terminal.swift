@@ -10,7 +10,7 @@ public enum TerminalTextAttribute: AttributedStringKey {
 
 public extension AttributeScopes {
     struct Terminal : AttributeScope {
-        let terminalTextAttributes : TerminalTextAttribute
+        public let terminalTextAttributes : TerminalTextAttribute
         
     }
     var terminal : Terminal.Type {
