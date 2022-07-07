@@ -11,53 +11,53 @@ public class Terminal {
     private var termios = Termios()
     var standardInput = FileHandle.standardInput
     var standardOutput = FileHandle.standardOutput
-    ///The current input mode for the terminal (default is `.cbreak`).  See ``InputMode`` for a list of modes and their behavior.
-    public private(set) var inputMode: InputMode
-    ///When `true` keypresses are immediately printed to the terminal (default is `false`)
-    public private(set) var echo: Bool
+
     
-    init(inputMode: InputMode = .cbreak, echo: Bool = false) {
-        termios.set(inputMode, echo: echo)
-        self.inputMode = inputMode
-        self.echo = echo
+    init() {
+        termios.set()
     }
 
     deinit {
         termios.restoreOriginalSettings()
     }
     
-    /**
-    Sets the ``InputMode`` and echo behavior of the terminal.
-     */
-    public func set(inputMode: InputMode, echo: Bool = false) {
-        termios.set(inputMode, echo: echo)
-        self.inputMode = inputMode
-        self.echo = echo
+    public func set(attributes: [Attribute]) {
+        let attributeString = attributes.map({$0.stringValue()}).joined(separator: "")
+        print(attributeString, terminator: "")
+        fflush(stdout)
+    }
+    
+    public func reset(attributes: [Attribute]) {
+        let attributeString = attributes.map({$0.resetValue()}).joined(separator: "")
+        print(attributeString, terminator: "")
+        fflush(stdout)
     }
     
     /**
      Awaits a keypress from the user and returns the input as ``Key``
      */
-    public func getKey() -> Key? {
+    public func getKey() throws ->  Key {
         /*
-         Using 32 bytes allows for some of the bigger grapheme clusters to be captured...such as 👨‍❤️‍👨 and 👨‍👨‍👧‍👧.  Not sure if this is the best choice, but works for now. Note: Echo mode spits out UTF-8 in 4 byte increments (single code point) to the console (at least in iTerm), which means multi code point characters get spit out as two or more characters instead. */
-        if let inputString = self.read(nBytes: 32) {
-            return Key(rawValue: inputString)
-        }
-        return nil
+         Using at least 32 bytes allows for some of the bigger grapheme clusters to be captured...such as 👨‍❤️‍👨 and 👨‍👨‍👧‍👧.  Not sure if this is the best choice, but works for now. Note: Echo mode spits out UTF-8 in 4 byte increments (single code point) to the console (at least in iTerm), which means multi code point characters get spit out as two or more characters instead.
+         To capture all text from the input buffer in the case of copy/pase operations nBytes is set to 1MB (1048576 bytes)
+         */
+        
+        let inputString = try self.read(nBytes: 1048576)
+        return Key(rawValue: inputString)
     }
     
     /**
         Awaits a press of the return key from the user and returns the captured input.
      */
-    public func getLine(strippingNewline: Bool = true) -> String? {
-        return readLine(strippingNewline: strippingNewline)
+    public func getLine(strippingNewline: Bool = true) -> String {
+        guard let lineEditor = try? LineEditor() else { return "" }
+        return lineEditor.getLine()
     }
     
     // internal read function
-    func read(nBytes: Int) -> String? {
+    func read(nBytes: Int) throws -> String {
         /*
-         The read function uses the low level system read call and some argue not to use it, but I have yet to get fread, getchar, etc to work properly in a scenario where the number of bytes expected to be in stdin varies or is unknown.
+         The read function uses the low level system read call.  Attempts with fread, getchar, etc fail to work properly in a scenario where the number of bytes expected to be in stdin varies or is unknown.
          */
         let bytesP = UnsafeMutableRawPointer.allocate(byteCount: nBytes, alignment: MemoryLayout<UInt8>.alignment).initializeMemory(as: UInt8.self, repeating: 0, count: nBytes)
         
@@ -71,12 +71,14 @@ public class Terminal {
         #endif
 
         if bytesRead <= 0 {
-            return nil
+            throw TerminalError.zeroByteSystemRead
         }
         let bufferPointer = UnsafeRawBufferPointer(start: bytesP, count: bytesRead)
         
-        let str = String(bytes: bufferPointer, encoding: .utf8)
-        fflush(stdin)
+        guard let str = String(bytes: bufferPointer, encoding: .utf8) else {
+            throw TerminalError.stringDecodingInSystemReadFailed
+        }
+        //fflush(stdin) no function on terminals or pipes?
         
         /*
         //useful for debugging
@@ -111,10 +113,15 @@ public class Terminal {
      
      Example: The control sequence CSI 6n ("\u{1B}[6n ") is used to get the current position of the cursor which is returned as CSI#;#R ("\u{1B}[row;columnR").
      */
-    public func executeControlSequenceWithResponse(_ controlSequence: ControlSequence) -> String? {
+    public func executeControlSequenceWithResponse(_ controlSequence: ControlSequence) throws -> String {
         print(controlSequence.stringValue(), terminator: "")
         fflush(stdout)
-        return read(nBytes: 64)
+        do {
+            let responseString = try read(nBytes: 64)
+            return responseString
+        } catch {
+            throw TerminalError.failedToReadTerminalResponse(message: "A response from the terminal for the control sequence \(controlSequence.stringValue()) was expected, but a read from standard input failed with \(error)")
+        }
     }
     
     
@@ -123,28 +130,39 @@ public class Terminal {
         executeControlSequence(ANSIEscapeCode.softReset)
     }
     
-    ///Returns the size of the screen in characters.  Returns(width: -1, height: -1) on failure.
-    public func textAreaSize() -> (width: Int, height: Int) {
-        guard let resultString = executeControlSequenceWithResponse(ANSIEscapeCode.textAreaSize) else { return (width:-1, height:-1)}
-        let items = resultString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in:.letters)}.map{Int($0)}.filter({$0 != nil})
-        if items.count == 3,
-           let width = items[2],
-           let height = items[1] {
-            return (width: width, height: height)
+    ///Returns the size of the screen in characters.
+    public func textAreaSize() throws -> (width: Int, height: Int) {
+        do {
+            let resultString = try executeControlSequenceWithResponse(ANSIEscapeCode.textAreaSize)
+            let items = resultString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in:.letters)}.map{Int($0)}.filter({$0 != nil})
+            if items.count == 3,
+               let width = items[2],
+               let height = items[1] {
+                return (width: width, height: height)
+            } else {
+                throw TerminalError.failedToParseTerminalResponse(message: "Unable to parse respone for text area size control sequence. Response: \(resultString)")
+            }
+        } catch {
+            throw TerminalError.failedToReadTerminalResponse(message: "A response for the textAreaSize control sequence was expected, but a read from standard input failed.")
         }
-        return (width: -1, height: -1)
     }
     
-    ///Returns the size of the screen as indicated by the terminal.  Returns (width: -1, height: -1) on failure.
-    public func screenSize() -> (width: Int, height: Int) {
-        guard let resultString = executeControlSequenceWithResponse(ANSIEscapeCode.screenSize) else {return (width:-1, height:-1)}
-        let items = resultString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in: .letters)}.map{Int($0)}.filter({$0 != nil})
-        if  items.count == 3,
-            let width = items[2],
-            let height = items[1] {
-            return (width: width, height: height)
+    ///Returns the size of the screen as indicated by the terminal.
+    public func screenSize() throws -> (width: Int, height: Int) {
+        do {
+            let resultString = try executeControlSequenceWithResponse(ANSIEscapeCode.screenSize)
+            let items = resultString.strippingCSI().split(separator: ";").map{$0.trimmingCharacters(in: .letters)}.map{Int($0)}.filter({$0 != nil})
+            if  items.count == 3,
+                let width = items[2],
+                let height = items[1] {
+                return (width: width, height: height)
+            } else {
+                throw TerminalError.failedToParseTerminalResponse(message: "Unable to parse respone for screenSize control sequence. Response: \(resultString)")
+            }
+        } catch {
+            throw TerminalError.failedToReadTerminalResponse(message: "A response for the screenSize control sequence was expected, but a read from standard input failed.")
         }
-        return (width: -1, height: -1)
+
     }
     
     ///Clears the contents of the current screen
@@ -157,5 +175,25 @@ public class Terminal {
         softReset()
         termios.restoreOriginalSettings()
         exit(0)
+    }
+}
+
+enum TerminalError: Error, CustomStringConvertible {
+    case zeroByteSystemRead
+    case stringDecodingInSystemReadFailed
+    case failedToParseTerminalResponse(message: String)
+    case failedToReadTerminalResponse(message: String)
+    
+    var description: String {
+        switch self {
+        case .zeroByteSystemRead:
+            return "Low level system returned zero bytes."
+        case .stringDecodingInSystemReadFailed:
+            return "Failed to decode bytes from system read to UTF-8 formatted string."
+        case .failedToParseTerminalResponse(let message):
+            return "Failed to parse terminal response. \(message)"
+        case .failedToReadTerminalResponse(let message):
+            return message
+        }
     }
 }

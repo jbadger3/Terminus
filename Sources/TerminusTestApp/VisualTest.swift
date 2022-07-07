@@ -27,7 +27,7 @@ func promptUserForVisualTest(prompt: String, location: Location = Location(x: 0,
     cursor.move(toLocation: location)
     terminal.executeControlSequence(ANSIEscapeCode.eraseLine)
     terminal.write("\(prompt) (y/n): ")
-    if let key = terminal.getKey() {
+    if let key = try? terminal.getKey() {
         if key.rawValue == "y" || key.rawValue == "Y" {
             terminal.write(key.rawValue)
             return

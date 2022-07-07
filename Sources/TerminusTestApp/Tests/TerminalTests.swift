@@ -35,7 +35,7 @@ class TerminalTests: TestCase {
         sut.clearScreen()
         sut.cursor.moveToHome()
         sut.write("Type something then press enter: ")
-        let line = sut.getLine()
+        let _ = sut.getLine()
         try promptUserForVisualTest(prompt: "Did it wait till you pressed enter?")
     }
     
@@ -80,7 +80,7 @@ class TerminalTests: TestCase {
     func test_textAreaSize_returnsSize() throws {
         sut.executeControlSequence(ANSIEscapeCode.clearScreen)
         sut.executeControlSequence(ANSIEscapeCode.cursorMoveToHome)
-        let size = sut.textAreaSize()
+        let size = try sut.textAreaSize()
         TAssertNotEqual(size.width, -1)
         TAssertNotEqual(size.height, -1)
     }

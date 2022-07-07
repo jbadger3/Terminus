@@ -79,3 +79,10 @@ public enum Attribute: ControlSequence {
         }
     }
 }
+
+extension Attribute: Equatable, Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(self.stringValue())
+    }
+    
+}
