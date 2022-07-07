@@ -4,14 +4,25 @@
 // XTerm Control Sequences https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
 
 import Foundation
+/// ASCII BEL
+public let Bel = "\u{7}"
+/// ASCII BS
+public let Backspace = "\u{7f}"
+/// ASCII tab (HT)
+public let Tab = "\t"
+/// ASCII Line feed (LF)
+public let Linefeed = "\n"
+/// ASCII carriage return (CR)
+public let CarriageReturn  = "\r"
+/// ASCII escape (ESC)
+public let Esc = "\u{1B}" // Escape character (27 or 1B)
+/// Control Sequence Introducer (CSI  is 0x9b).
+public let CSI = Esc + "["
+/// Device Control String (DCS  is 0x90).
+public let DCS = Esc + "P"
+/// Operating System Command (OSC  is 0x9d).
+public let OSC = Esc + "]"
 
-public let BEL = "\u{7}"
-public let ESC = "\u{1B}" // Escape character (27 or 1B)
-public let CSI = ESC + "[" // Control Sequence Introducer (CSI  is 0x9b).
-public let DCS = ESC + "P" // Device Control String (DCS  is 0x90).
-public let OSC = ESC + "]" // Operating System Command (OSC  is 0x9d).
-//public let ST = ESC + "\\" // String Terminator (ST  is 0x9c).
-//public let DLE = "\u{10}" // Data link escape DLE
 
 ///A string corresponding to an ANSI Escape Code
 public protocol ControlSequence {
@@ -126,7 +137,7 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
         case .screenSize:
             return CSI + "19t"
         case .designateCharacterSet(let characterSet):
-            return ESC + "(\(characterSet)"
+            return Esc + "(\(characterSet)"
         case .useAlternateScreenBuffer:
             return CSI + "?1049h"
         case .useMainScreenBuffer:
@@ -153,9 +164,9 @@ public enum ANSIEscapeCode: Equatable, ControlSequence {
         case .cursorStyle(let style):
             return CSI + "\(style.rawValue) q"
         case .cursorSave:
-            return ESC + "7"
+            return Esc + "7"
         case .cursorRestore:
-            return ESC + "8"
+            return Esc + "8"
         case .eraseToEndOfScreen:
             return CSI + "0J"
         case .eraseToBeginningOfScreen:
