@@ -44,12 +44,12 @@ class CursorTests: TestCase {
     
     //MARK: Helper functions
     func saveCursorPosition() {
-        var saveCS = ESC + "7"
+        var saveCS = Esc + "7"
         write(STDOUT_FILENO, &saveCS, saveCS.lengthOfBytes(using: .utf8))
     }
     
     func restoreCursorPosition() {
-        var restoreCS = ESC + "8"
+        var restoreCS = Esc + "8"
         write(STDOUT_FILENO, &restoreCS, restoreCS.lengthOfBytes(using: .utf8))
     }
    
@@ -81,7 +81,7 @@ class CursorTests: TestCase {
         var finalLocation: Location! = Location(x: 0, y: 0)
         let startingLocation = Location(x: 25, y: 25)
         sut.move(toLocation: startingLocation)
-        TAssertEqual(startingLocation, sut.location!)
+        TAssertEqual(startingLocation, sut.location)
         //down 5
         expectedLocation = Location(x: 25, y: 30)
         sut.move(5, direction: .down)
@@ -121,7 +121,7 @@ class CursorTests: TestCase {
         sut.moveToHome()
         
         let expectedLocation = Location(x: 1, y: 1)
-        TAssertEqual(expectedLocation, sut.location )
+        TAssertEqual(expectedLocation, sut.location)
         
         restoreCursorPosition()
     }
