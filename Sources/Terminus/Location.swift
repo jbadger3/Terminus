@@ -16,3 +16,17 @@ public struct Location: Equatable {
         self.y = y
     }
 }
+
+extension Location: Comparable {
+    public static func < (lhs: Location, rhs: Location) -> Bool {
+        if lhs.y != rhs.y {
+            return lhs.y < rhs.y
+        } else {
+            return lhs.x < rhs.x
+        }
+    }
+}
+
+
+
+
