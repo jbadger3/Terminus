@@ -31,7 +31,7 @@ class MenuTests: TestCase {
         terminal.clearScreen()
         sut = Menu(location: Location(x: 1, y: 1), items: testItems)
         
-        textAreaSize = terminal.textAreaSize()
+        textAreaSize = try! terminal.textAreaSize()
     }
     
     override func tearDown() {

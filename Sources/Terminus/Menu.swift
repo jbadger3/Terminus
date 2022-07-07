@@ -30,13 +30,14 @@ public class Menu {
     var currentSelection: (row: Int, column: Int) = (0, 0)
     var scrollOffset: Int = 0
     let scrollDirection: ScrollDirection
-
+    
     init(location: Location?, items: [String], maxColumns: Int = Int.max, maxRows: Int = Int.max, scrollDirection: ScrollDirection = .vertical, itemAttributes: [Attribute] = [.colorPair(defaultItemColorPair)], selectionAttributes: [Attribute] = [.colorPair(defaultSelectionColorPair)]) {
         if let location = location {
             self.location = location
         } else {
             let cursor = Cursor()
-            self.location = cursor.location == nil ? Location(x: 1, y: 1) : cursor.location!
+            let currentLocation = cursor.location
+            self.location = currentLocation == nil ? Location(x: 1, y: 1) : currentLocation!
         }
         self.items = items
         self.maxColumns = maxColumns
@@ -65,18 +66,17 @@ public class Menu {
     }
     
     func calculateTableDimensions() {
-    /*
-     1. Determine number of rows and columns available based on the location of where the menu will be drawn.
-     2. Calculate the maxVisible rows/columns/cells taking the smaller of the visible dimension or user specified max
-     3. If the total number of visible cells is less than the total number of items...use all available space
-     4. Otherwise fill maximally in the direction opposite of the scroll, calculating needed columns/rows to fit.
-     
-     */
+        /*
+         1. Determine number of rows and columns available based on the location of where the menu will be drawn.
+         2. Calculate the maxVisible rows/columns/cells taking the smaller of the visible dimension or user specified max
+         3. If the total number of visible cells is less than the total number of items...use all available space
+         4. Otherwise fill maximally in the direction opposite of the scroll, calculating needed columns/rows to fit.
+         
+         */
         let terminal = Terminal.shared
         
         //1.
-        let textArea = terminal.textAreaSize()
-        guard textArea != (-1, -1) else { return }
+        guard let textArea = try? terminal.textAreaSize() else { return }
         let rowsAvailable = textArea.height - location.y + 1
         
         let availableCharWidth = textArea.width - location.x + 1
@@ -158,15 +158,15 @@ public class Menu {
     func awaitSelection(selectionHandler: @escaping ((_ selection: String?) -> Void)) {
         let terminal = Terminal.shared
         while true {
-            if let key = terminal.getKey() {
-                if key.keyCode == .KEY_ESC {
+            if let key = try? terminal.getKey() {
+                if key.rawValue == Esc {
                     return selectionHandler(nil)
                 }
-                if key.keyCode == .KEY_LF {
+                if key.rawValue == Linefeed {
                     let itemIndex = indexFor(itemPosition: currentSelection)
                     return selectionHandler(items[itemIndex])
                 }
-                if key.isArrowKey {
+                if key.isNavigation {
                     moveSelection(key: key)
                 }
             }
@@ -174,10 +174,9 @@ public class Menu {
     }
     
     func moveSelection(key: Key) {
-        guard key.isArrowKey else { return }
-        guard let keyCode = key.keyCode else { return }
-        switch keyCode {
-        case .KEY_DOWN:
+        guard let navigationKey = NavigationKey(rawValue: key.rawValue) else { return }
+        switch navigationKey {
+        case .down:
             let proposedPosition = ItemPosition(row: currentSelection.row + 1, column: currentSelection.column)
             let proposedIndex = indexFor(itemPosition: proposedPosition)
             if proposedIndex < items.count {
@@ -187,21 +186,21 @@ public class Menu {
                     scrollOffset += 1
                 }
             }
-        case .KEY_UP:
+        case .up:
             let proposedPosition = ItemPosition(row: currentSelection.row - 1, column: currentSelection.column)
             if proposedPosition.row < 0 && scrollDirection == .vertical && scrollOffset > 0 {
                 scrollOffset -= 1
             } else if proposedPosition.row >= 0 {
                 currentSelection.row -= 1
             }
-        case .KEY_LEFT:
+        case .left:
             let proposedPosition = ItemPosition(row: currentSelection.row, column: currentSelection.column - 1)
             if proposedPosition.column < 0 && scrollDirection == .horizontal && scrollOffset > 0 {
                 scrollOffset -= 1
             } else if proposedPosition.column >= 0 {
                 currentSelection.column -= 1
             }
-        case .KEY_RIGHT:
+        case .right:
             let proposedPosition = ItemPosition(row: currentSelection.row, column: currentSelection.column + 1)
             let proposedIndex = indexFor(itemPosition: proposedPosition)
             if proposedIndex < items.count {
@@ -211,12 +210,19 @@ public class Menu {
                     scrollOffset += 1
                 }
             }
-        default:
+        case .home:
+            return
+        case .end:
+            return
+        case .pageUp:
+            return
+        case .pageDown:
+            return
+        case .delete:
+            return
+        case .insert:
             return
         }
         draw()
     }
-     
-    
-    
 }
