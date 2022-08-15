@@ -1,11 +1,14 @@
-//
 //  Created by Jonathan Badger on 6/7/22.
 //
 
 import Foundation
 
 /**
- For vertical scrolling cells are filled left to right, top to bottom.  For horizontal filling items are filled top to bottom, left to right
+ A control that adds menus to the terminal.
+ 
+ The Menu class provides a lightweight system for allowing users to select from a list of items. To initiate user input call .getSelection().
+ 
+ > Note: For vertical scrolling cells are filled left to right, top to bottom.  For horizontal filling items are filled top to bottom, left to right
  */
 public class Menu {
     public enum ScrollDirection {
@@ -56,14 +59,6 @@ public class Menu {
         }
     }
     
-    
-    func show() {
-        
-    }
-    
-    func hide() {
-        
-    }
     
     func calculateTableDimensions() {
         /*
@@ -121,14 +116,10 @@ public class Menu {
     }
     
     func draw() {
-        /*
-         1.  save the current cursor location...the draw func should not ever change the current cursor location once complete.
-         2.
-         */
         let terminal = Terminal.shared
         let cursor = Cursor()
         cursor.save()
-        cursor.set(visibility: false)
+        
         calculateTableDimensions()
         
         let startingLocation = location
@@ -152,25 +143,48 @@ public class Menu {
         }
         
         cursor.restore()
-        cursor.set(visibility: true)
     }
     
-    func awaitSelection(selectionHandler: @escaping ((_ selection: String?) -> Void)) {
+    func erase() {
         let terminal = Terminal.shared
-        while true {
+        let cursor = Cursor()
+        let startingLocation = location
+        for column in 0..<tableDimensions.nColumns {
+            for row in 0..<tableDimensions.nRows {
+                let itemLocation = Location(x: startingLocation.x + column * columnWidth , y: startingLocation.y + row)
+                cursor.move(toLocation: itemLocation)
+                terminal.write(String(repeating: " ", count: columnWidth))
+            }
+        }
+        cursor.move(toLocation: location)
+    }
+    
+    public func getSelection() -> String? {
+        let terminal = Terminal.shared
+        terminal.cursor.set(visibility: false)
+        draw()
+        
+        var selection: String? = nil
+        var shouldBreak = false
+        while shouldBreak == false {
             if let key = try? terminal.getKey() {
                 if key.rawValue == Esc {
-                    return selectionHandler(nil)
+                    shouldBreak = true
                 }
                 if key.rawValue == Linefeed {
                     let itemIndex = indexFor(itemPosition: currentSelection)
-                    return selectionHandler(items[itemIndex])
+                    selection = items[itemIndex]
+                    shouldBreak = true
                 }
                 if key.isNavigation {
                     moveSelection(key: key)
                 }
             }
         }
+        
+        erase()
+        terminal.cursor.set(visibility: true)
+        return selection
     }
     
     func moveSelection(key: Key) {
