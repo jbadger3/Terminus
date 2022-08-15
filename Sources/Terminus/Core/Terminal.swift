@@ -49,7 +49,7 @@ public class Terminal {
     /**
         Awaits a press of the return key from the user and returns the captured input.
      */
-    public func getLine(strippingNewline: Bool = true) -> String {
+    public func getLine() -> String {
         return LineEditor().getInput()
     }
     
