@@ -9,8 +9,8 @@ import Foundation
 
 ///Specifies a location on the terminal screen where x is the line number and y is the column number.  The origin for the terminal is (1, 1) and corresponds to the upper left corner of the screen.
 public struct Location: Equatable {
-    public let x: Int
-    public let y: Int
+    public var x: Int
+    public var y: Int
     public init(x: Int, y: Int) {
         self.x = x
         self.y = y
