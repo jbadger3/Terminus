@@ -9,6 +9,7 @@ import Foundation
  The Menu class provides a lightweight system for allowing users to select from a list of items. To initiate user input call .getSelection().
  
  > Note: For vertical scrolling cells are filled left to right, top to bottom.  For horizontal filling items are filled top to bottom, left to right
+ 
  */
 public class Menu {
     public enum ScrollDirection {

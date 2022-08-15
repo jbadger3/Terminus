@@ -18,8 +18,8 @@ class MenuTests: TestCase {
                  Test(name: "test_draw_whenNotEnoughColumnsPresent_fillsToBottom", testFunction: test_draw_whenNotEnoughColumnsPresent_fillsToBottom, interactive: true),
                  Test(name: "test_draw_whenScrollOffset2_startsAtItem3", testFunction: test_draw_whenScrollOffset2_startsAtItem3, interactive: true),
                  Test(name: "test_draw_whencurrentSelection1_highlightsItem1", testFunction: test_draw_whencurrentSelection1_highlightsItem1, interactive: true),
-                 Test(name: "test_awaitSelection_whenEscapeKeyPressed_exitsWithNil", testFunction: test_awaitSelection_whenEscapeKeyPressed_exitsWithNil, interactive: true),
-                 Test(name: "test_awaitSelection_whenEnterPressed_exitsWithSelection", testFunction: test_awaitSelection_whenEnterPressed_exitsWithSelection, interactive: true),
+                 Test(name: "test_getSelection_whenEscapeKeyPressed_exitsWithNil", testFunction: test_getSelection_whenEscapeKeyPressed_exitsWithNil, interactive: true),
+                 Test(name: "test_getSelection_whenEnterPressed_exitsWithSelection", testFunction: test_getSelection_whenEnterPressed_exitsWithSelection, interactive: true),
         ]
         
     }
@@ -73,24 +73,24 @@ class MenuTests: TestCase {
         try promptUserForVisualTest(prompt: "Is the current selection \(testItems[1])")
     }
     
-    func test_awaitSelection_whenEscapeKeyPressed_exitsWithNil() throws {
+    func test_getSelection_whenEscapeKeyPressed_exitsWithNil() throws {
         sut.draw()
         terminal.cursor.move(toLocation: Location(x: 1, y: 500))
         terminal.write("Try pressing ESCAPE to exit")
-        sut.awaitSelection { selection in
-            TAssertNil(selection)
-        }
+        let selection = sut.getSelection()
+        TAssertNil(selection)
+        
         
         try promptUserForVisualTest(prompt: "Were you able to get out?")
     }
     
-    func test_awaitSelection_whenEnterPressed_exitsWithSelection() throws {
+    func test_getSelection_whenEnterPressed_exitsWithSelection() throws {
         sut.draw()
         terminal.cursor.move(toLocation: Location(x: 1, y: 500))
         terminal.write("Try pressing enter to select the first object")
-        sut.awaitSelection { selection in
-            TAssertNotNil(selection)
-        }
+        let selection = sut.getSelection()
+        TAssertNotNil(selection)
+        
         try promptUserForVisualTest(prompt: "Did you press enter?")
     }
 

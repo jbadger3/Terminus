@@ -3,157 +3,16 @@
 
 import Foundation
 
+
+
 /**
  A flexible control for collecting and editing user input.
  
 The LineEditor editor class provides a familiar text editing experience out of the box.  To initiate user input call .getInput().  While input is being captured you can use the arrowkeys to move the cursor, insert, and delete characters.  When you are finisehd editing press return/enter to receive the input string back.
 
 > Note: The linefeed character "\n" used to end user interaction is *not* included in the returned string.
- 
-```swift
- import Terminus
- let terminal = Terminal.shared
- terminal.write("Type something: ")
- 
- let lineEditor = LineEditor()
- let input = lineEditor.getInput()
- 
- terminal.write("\nYou typed: \(input)")
- sleep(2)
- ```
- 
- As user input is being captured it is stored in the ``buffer`` property.  Although the buffer is a public property, custom editing and styling should be applied using ``LineEditor/bufferHandler``.  See the 'Adding color and style to text' below for an exmaple.
- 
- ## Customizing Behavior
- 
- LineEditor can be subclassed to customize how characters are processed and displayed to suit your own needs.  If, for example, you want to add autocomplete, you can do that.  If you want to allow for inputs that include Linefeed ("\n") characters you can do that too.
- 
- All Inputs captured by the LineEditor are processed by key type (character, navigation, function, or control) using one of four handlers:
 
- - characterKeyHandler: ((Key) -> (ShouldAddKeyToLineBuffer, ShouldWriteBuffer))?
- - navigationKeyHandler: ((Key) -> ShouldWriteBuffer)?
- - functionKeyHandler: ((Key) -> ShouldWriteBuffer)?
- - controlKeyHandler: ((Key) -> ShouldWriteBuffer)?
- 
- To modify the behavior of LineEditor create a subclass of LineEditor, write your own handler function, and set it to the appropriate KeyHandler property.
- 
- Before going into a few examples of customiztion take a look at the code for the default charcterKeyHandler:
- ```swift
- func defaultCharacterHandler(key: Key) -> (ShouldAddKeyToLineBuffer, ShouldWriteBuffer) {
-     if key.rawValue == Backspace {
-         let shouldWriteBuffer = defaultBackspaceKeyHandler()
-         return (false, shouldWriteBuffer)
-     }
-     if key.rawValue == Linefeed {
-         shouldEndEditing = true
-         return (false, false)
-     }
-     if key.rawValue == Esc {
-         return (false, false)
-     }
-     return (true, true)
- }
- ```
-This function does four things:
- 1.  Handles Backspace key presses.  (make sure to copy/paste the code from the if statement in your custom function)
- 2.  Checks if the return key ("\n") was pressed.  If so, shouldEndEditing is set to true signaling .getInput() to return the captured string.
- 3.  If the escape key is pressed, skips adding it to the buffer.
- 4.  For all other characters returns a tuple (true, true) indicating the key should be added to the buffer and the buffer should be written to the terminal.
- 
- ### Example: Using the escape key to cancel editing
- 
- ```swift
- import Terminus
- import Foundation
-
- let terminal = Terminal.shared
- let lineEditor = LineEditor()
-
- class EscapingLineEditor: LineEditor {
-     override init() {
-         super.init()
-         self.characterKeyHandler = handleCharacter
-     }
-     
-     func handleCharacter(key: Terminus.Key) -> (ShouldAddKeyToLineBuffer, ShouldWriteBuffer) {
-         if key.rawValue == Backspace {
-             let shouldWriteBuffer = defaultBackspaceKeyHandler()
-             return (false, shouldWriteBuffer)
-         }
-         if key.rawValue == Linefeed {
-             shouldEndEditing = true
-             return (false, false)
-         }
-         if key.rawValue == Esc {
-             shouldEndEditing = true
-             let range = buffer.startIndex..<buffer.endIndex
-             buffer.removeSubrange(range)
-             return (false, false)
-         }
-        return (true, true)
-     }
- }
-
- let escapingEditor = EscapingLineEditor()
- let results = escapingEditor.getInput()
- terminal.write("\n")
- if results == "" {
-     terminal.write("You escaped or didn't write anything.")
- } else {
-     terminal.write("You typed: \(results)")
- }
- sleep(3)
- ```
- 
- ## Example: Adding support for multiple lines of text
- 
-```swift
- import Terminus
- import Foundation
-
- let terminal = Terminal.shared
-
- class MultiLineEditor: LineEditor {
-     override init() {
-         super.init()
-         self.characterKeyHandler = handleCharacter
-     }
-     
-     func handleCharacter(key: Terminus.Key) -> (ShouldAddKeyToLineBuffer, ShouldWriteBuffer) {
-         if key.rawValue == Backspace {
-             let shouldWriteBuffer = defaultBackspaceKeyHandler()
-             return (false, shouldWriteBuffer)
-         }
-         if let currentLocation = terminal.cursor.location,
-            let bufferIndex = bufferIndexForLocation(currentLocation),
-            bufferIndex == buffer.characters.endIndex,
-            buffer.characters.last == "\n",
-            key.rawValue == "\n" {
-             shouldEndEditing = true
-             return (false, false)
-         }
-         if key.rawValue == Esc {
-             return (false, false)
-         }
-         return (true, true)
-     }
- }
-
- let multiLineEditor = MultiLineEditor()
-
- while true {
-     let lines = multiLineEditor.getInput()
-     terminal.write(lines, attributes: [.color(Color(r: 20, g: 255, b: 20))])
- }
- ```
- 
- ## Example: Adding color and style to text
- 
- There is one additional handler, `bufferHandler` that is called after a key press is received and added to the buffer, but before the buffer is rewritten to the terminal.  This is the place to
- 
- 
- 
- 
+If you are looking to extend the functionality of the LineEditor, add custom formatting, or change the default behavior see <doc:Using-the-LineEditor>.
  */
 open class LineEditor {
     public typealias ShouldWriteBuffer = Bool
@@ -169,7 +28,7 @@ open class LineEditor {
     ///A closure for handling navigation keypresses
     public var navigationKeyHandler: ((Key) -> ShouldWriteBuffer)? = nil
     ///A closure for handling function keypresses
-    public var functionKwyHandler: ((Key) -> ShouldWriteBuffer)? = nil
+    public var functionKeyHandler: ((Key) -> ShouldWriteBuffer)? = nil
     ///A closrue for handling control keypresses
     public var controlKeyHandler: ((Key) -> ShouldWriteBuffer)? = nil
     ///A closure for editing the contents of the input buffer
@@ -211,7 +70,7 @@ open class LineEditor {
                         addKeyToLineBuffer(key)
                     }
                 } else if key.isFunction,
-                          let functionKwyHandler = functionKwyHandler {
+                          let functionKwyHandler = functionKeyHandler {
                     shouldWriteBuffer = functionKwyHandler(key)
                 } else if key.isNavigation,
                           let navigationKeyHandler = navigationKeyHandler {
@@ -220,9 +79,11 @@ open class LineEditor {
                           let controlKeyHandler = controlKeyHandler {
                     shouldWriteBuffer = controlKeyHandler(key)
                 }
+                
                 if let bufferHandler = bufferHandler {
-                    shouldWriteBuffer = bufferHandler()
+                  shouldWriteBuffer = bufferHandler()
                 }
+                
                 if shouldWriteBuffer {
                     self.writeBuffer()
                 }
