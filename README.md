@@ -62,7 +62,6 @@ In your current CLI project
 5. Click Finish.
 
 
-
 # Credits/Resources
 
 I am by no means an expert in all things terminal, nor can I say that I haven't cherry picked bits of code that I liked from other projects. Packages, sources of inspiration and sources with valuable information include: 
