@@ -3,6 +3,15 @@
 
 import Foundation
 
+/**
+Allows AttributedStrings to utilize terminal text attributes.
+ 
+ Use .terminalTextAttributes on an `AttributedString` to set attributes.
+ ```swift
+ var myString = AttributedString("Bold")
+ myString.terminalTextAttributes = [.bold]
+ ```
+ */
 public enum TerminalTextAttribute: AttributedStringKey {
     public typealias Value = [Attribute]
     public static let name: String = "TerminalAttributes"

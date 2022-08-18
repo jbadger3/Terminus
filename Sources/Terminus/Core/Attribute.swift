@@ -4,7 +4,7 @@
 //
 
 ///Used to specify the appearance of characters on screen.  Mutliple attributes can be combined for varying effects.
-public enum Attribute: ControlSequence {
+public enum Attribute: ControlSequenceEmitting {
     case resetToDefault //CSI 0m
     case bold //CSI 1m
     case dim //CSI 2m

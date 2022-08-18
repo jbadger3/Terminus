@@ -183,5 +183,7 @@ lineEditor.bufferHandler = {
 }
 
 let input = lineEditor.getInput()
+// try typing "Stoplights are red, yellow, and green."
 ```
 
+![Example BufferHandler](example_buffer_handler)

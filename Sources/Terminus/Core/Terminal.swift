@@ -77,7 +77,6 @@ public class Terminal {
         guard let str = String(bytes: bufferPointer, encoding: .utf8) else {
             throw TerminalError.stringDecodingInSystemReadFailed
         }
-        //fflush(stdin) no function on terminals or pipes?
         
         /*
         //useful for debugging
@@ -100,7 +99,7 @@ public class Terminal {
     }
     
     /**
-     TODO: Cool docs go here
+     Prints an AttributedString to the terminal that can include text styling and coloring.
      */
     public func write(attributedString: AttributedString) {
         for run in attributedString.runs {
@@ -113,7 +112,7 @@ public class Terminal {
     /**
      Executes a terminal control sequences / ANSI escape code
      */
-    public func executeControlSequence(_ controlSequence: ControlSequence) {
+    public func executeControlSequence(_ controlSequence: ControlSequenceEmitting) {
         print(controlSequence.csString(), terminator: "")
         fflush(stdout)
     }
@@ -123,7 +122,7 @@ public class Terminal {
      
      Example: The control sequence CSI 6n ("\u{1B}[6n ") is used to get the current position of the cursor which is returned as CSI#;#R ("\u{1B}[row;columnR").
      */
-    public func executeControlSequenceWithResponse(_ controlSequence: ControlSequence) throws -> String {
+    public func executeControlSequenceWithResponse(_ controlSequence: ControlSequenceEmitting) throws -> String {
         print(controlSequence.csString(), terminator: "")
         fflush(stdout)
         do {

@@ -25,11 +25,9 @@ public let OSC = Esc + "]"
 
 
 /**
- A Type that is intended to alter the behavior or appearance of the terminal using one or more ANSI escape codes.
+ A Type that emits a String corresponding to one or more control sequences (ANSI escape codes).
  
- The main advantage of conforming to ConrtrolSequence can be directly executed using ``Terminal/executeControlSequence(_:)`` and ``Terminal/executeControlSequenceWithResponse(_:)``.
- 
- Conformance to ControlSequence is straightforward and can lead to sophisticated terminal manipulation with relatively little effort.
+ Conformers of ControlSequenceEmmiting can be passed to the terminal for direct execution using``Terminal/executeControlSequence(_:)`` and ``Terminal/executeControlSequenceWithResponse(_:)``.  This can lead to sophisticated terminal manipulation with relatively little effort.
  
 #Example:
  
@@ -60,13 +58,13 @@ public let OSC = Esc + "]"
  ```
  
  */
-public protocol ControlSequence {
+public protocol ControlSequenceEmitting {
     ///A `String` corresponding to one or more ANSI Escape Codes.
     func csString() -> String
 }
 
 ///Terminal Control Sequences (ANSI Escape Codes)
-public enum ANSIEscapeCode: Equatable, ControlSequence {
+public enum ANSIEscapeCode: Equatable, ControlSequenceEmitting {
     /**
     Arrow key designations
      */

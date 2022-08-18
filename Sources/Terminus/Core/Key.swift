@@ -29,13 +29,16 @@ public struct Key {
       A raw string representation of a keypress as captured from the standard input.
      */
     public let rawValue: String
+    ///
+    public let type: KeyType
    
     public init(rawValue: String) {
         self.rawValue = rawValue
+        self.type = KeyType(rawValue: rawValue)
         
     }
     
-    ///Indicates if the key is one of the arrow keys (up, down, right, or left)
+    ///Indicates if the key is one of the navigation keys (up, down, right, left, etc.)
     public var isNavigation: Bool {
         return NavigationKey(rawValue: rawValue) != nil
     }

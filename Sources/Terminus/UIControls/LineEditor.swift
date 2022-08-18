@@ -24,13 +24,13 @@ open class LineEditor {
     ///When set to true ends user interaction and returns any caputred input from getLines
     public var shouldEndEditing: Bool = false
     ///A closure for handling character keypresses
-    public var characterKeyHandler: ((Key) -> (ShouldAddKeyToLineBuffer, ShouldWriteBuffer))? = nil
+    public var characterKeyHandler: ((String) -> (ShouldAddKeyToLineBuffer, ShouldWriteBuffer))? = nil
     ///A closure for handling navigation keypresses
-    public var navigationKeyHandler: ((Key) -> ShouldWriteBuffer)? = nil
+    public var navigationKeyHandler: ((NavigationKey) -> ShouldWriteBuffer)? = nil
     ///A closure for handling function keypresses
-    public var functionKeyHandler: ((Key) -> ShouldWriteBuffer)? = nil
+    public var functionKeyHandler: ((FunctionKey) -> ShouldWriteBuffer)? = nil
     ///A closrue for handling control keypresses
-    public var controlKeyHandler: ((Key) -> ShouldWriteBuffer)? = nil
+    public var controlKeyHandler: ((ControlKey) -> ShouldWriteBuffer)? = nil
     ///A closure for editing the contents of the input buffer
     public var bufferHandler: (() -> ShouldWriteBuffer)? = nil
 
@@ -61,14 +61,33 @@ open class LineEditor {
         while !shouldEndEditing {
             if let key = try? terminal.getKey() {
                 var shouldWriteBuffer: Bool = false
-                if key.isCharacter,
-                   !key.rawValue.contains("\u{1b}["),
-                   let characterKeyHandler  = characterKeyHandler {
-                    let (shouldAddKeyToLineBuffer, writeBuffer) = characterKeyHandler(key)
-                    shouldWriteBuffer = writeBuffer
-                    if shouldAddKeyToLineBuffer {
-                        addKeyToLineBuffer(key)
+                switch key.type {
+                case .character:
+                    if !key.rawValue.contains("\u{1b}["),
+                       let characterKeyHandler  = characterKeyHandler {
+                        let (shouldAddKeyToLineBuffer, writeBuffer) = characterKeyHandler(key.rawValue)
+                        shouldWriteBuffer = writeBuffer
+                        if shouldAddKeyToLineBuffer {
+                            addKeyToLineBuffer(key)
+                        }
                     }
+                case .function(let functionKey):
+                    if let functionKeyHandler = functionKeyHandler {
+                        shouldWriteBuffer = functionKeyHandler(functionKey)
+                    }
+                case .navigation(let navigationKey):
+                    if let navigationKeyHandler = navigationKeyHandler {
+                        shouldWriteBuffer = navigationKeyHandler(navigationKey)
+                    }
+                case .control(let controlKey):
+                    if let controlKeyHandler = controlKeyHandler {
+                        shouldWriteBuffer = controlKeyHandler(controlKey)
+                    }
+                }
+                
+                /*
+                if key.isCharacter,
+                   
                 } else if key.isFunction,
                           let functionKwyHandler = functionKeyHandler {
                     shouldWriteBuffer = functionKwyHandler(key)
@@ -79,6 +98,7 @@ open class LineEditor {
                           let controlKeyHandler = controlKeyHandler {
                     shouldWriteBuffer = controlKeyHandler(key)
                 }
+                 */
                 
                 if let bufferHandler = bufferHandler {
                   shouldWriteBuffer = bufferHandler()
@@ -154,8 +174,7 @@ open class LineEditor {
     /**
     The default navigationKeyHandler, which adds support for arrow keys.
      */
-    public func defaultNavigationKeyHandler(key: Key) -> ShouldWriteBuffer {
-        guard let navigationKey = NavigationKey(rawValue: key.rawValue) else { return false }
+    public func defaultNavigationKeyHandler(_ navigationKey: NavigationKey) -> ShouldWriteBuffer {
         switch navigationKey {
         case .down:
             moveCursor(.down)
@@ -173,16 +192,16 @@ open class LineEditor {
     /**
     The default characterKeyHandler
      */
-    func defaultCharacterHandler(key: Key) -> (ShouldAddKeyToLineBuffer, ShouldWriteBuffer) {
-        if key.rawValue == Backspace {
+    func defaultCharacterHandler(_ characterString: String) -> (ShouldAddKeyToLineBuffer, ShouldWriteBuffer) {
+        if characterString == Backspace {
             let shouldWriteBuffer = defaultBackspaceKeyHandler()
             return (false, shouldWriteBuffer)
         }
-        if key.rawValue == Linefeed {
+        if characterString == Linefeed {
             shouldEndEditing = true
             return (false, false)
         }
-        if key.rawValue == Esc {
+        if characterString == Esc {
             return (false, false)
         }
         return (true, true)

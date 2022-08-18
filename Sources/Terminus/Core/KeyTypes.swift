@@ -4,6 +4,34 @@ import Foundation
 //VT-100 function keys (PF keys) http://www.braun-home.net/michael/info/misc/VT100_commands.htm
 
 /**
+ The type of a pressed key.
+ */
+public enum KeyType {
+    ///A keycode/escape sequence corresponding to one of the navigation keys (arrow, page up/page down, home/end, or insert/delete) on a standard keyboard.
+    case navigation(navigationKey: NavigationKey)
+    ///Keycodes/escape sequences corresponding to key sequences beginning with the control key.
+    case control(controlKey: ControlKey)
+    ///Keycodes/escape sequences corresponding to the function keys (F1-F12) on a standard keyboard.
+    case function(functionKey: FunctionKey)
+    ///One or more characters that are not considered navigation, control, or function keys.
+    case character
+    
+    init(rawValue: String) {
+        if let navigationKey = NavigationKey(rawValue: rawValue) {
+            self = .navigation(navigationKey: navigationKey)
+        } else if let controlKey = ControlKey(rawValue: rawValue) {
+            self = .control(controlKey: controlKey)
+        } else if let functionKey = FunctionKey(rawValue: rawValue) {
+            self = .function(functionKey: functionKey)
+        } else {
+            self = .character
+        }
+        
+    }
+}
+
+
+/**
  Keycodes/escape sequences corresponding to the navigation keys (arrow, page up/page down, home/end, or insert/delete) on a standard keyboard.
  */
 public enum NavigationKey: String, CaseIterable {
