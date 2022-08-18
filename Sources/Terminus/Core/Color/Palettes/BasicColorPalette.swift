@@ -4,7 +4,7 @@
 import Foundation
 
 /**
- The BasicColorPalette contains the 8 colors originally specified in ncurses.  Users interested in 256 colors should use the ``X11WebPalette`` or ``XTermPalette``.
+ The BasicColorPalette contains the 8 colors originally specified in ncurses.  Users interested more variety should use the ``X11WebPalette`` or ``XTermPalette``.
  */
 public struct BasicColorPalette: ColorPalette {
     public let Black = Color(r: 0, g: 0, b: 0)
