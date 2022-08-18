@@ -3,7 +3,7 @@
 An introduction to using Terminus.
 
 ## Overview
-The starting point for any command line application using Terminus begins with the terminal.  ``Terminal`` is a shared singleton you can use to print to the screen, get input from the user, access the cursor, and execute control sequences.
+The starting point for any command line application using Terminus begins with the terminal. The ``Terminal`` class is a shared singleton that provides the primary interface for outputting text, moving the cursor, and interacting with the terminal.
 ```swift
 import Terminus
 let terminal = Terminal.shared

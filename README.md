@@ -6,28 +6,82 @@
 # What is it?
 The goal of Terminus is to make writing visually appealing command line applications fast, efficient, and intuitive.  It aims to provide both high level building blocks like menus and user prompts (y/n, multiple choice, REPL, etc.) as well as lower level access to ANSI codes for users that one more complete control.
 
-* Please note: Terminus is an early stage project.  At this point none of the API should be relied upon as 'stable' or production ready.
+* Please note: Terminus is an early stage project.  I am actively seeking feedback and additional contributers, so get in touch if this is something that interests you!
 
 # Usage/Examples
 
-## Getting started
 The `Terminal` class is a shared singleton that provides the primary interface for outputting text, moving the cursor, and interacting with the terminal.  When first instantiated, the input mode is set to .cbreak and echoing is turned off.
-
-## Input modes
-Terminals
-
-## Color
-The majority of terminal emulators these days support 256 colors or more.  Colors in terminus can be specified using RGB as in:
 ```swift
-let myColor = Color(r: 0, g: 0, b: 0) //black
-
+import Terminus
+let terminal = Terminal.shared
 ```
-## Stylized text
+## Printing output
+To print to the screen use one of the `terminal`'s write methods: 
+* ``Terminal/write(_:attributes:)``
+* ``Terminal/write(attributedString:)``.
 
+```swift
+terminal.write("Hello world!")
+```
+## Text Attributes
+Most modern terminal emulators support text styling and color (256 is typical).  To add one or more styles to text you can pass an array of attributes when calling write.  See ``Attribute`` for the list of text styles and color support.
+```swift
+terminal.write("I am bold and underlined.\n", attributes: [.bold, .underline])
+```
+You can also use attributed strings to add styling as in:
+```swift
+var attributedString = AttributedString("Hello, bold, underlined, world.")
+if let boldRange = attributedString.range(of: "bold") {
+    attributedString[boldRange].terminalTextAttributes = [.bold]
+}
+if let underlinedRange = attributedString.range(of: "underlined") {
+    attributedString[underlinedRange].terminalTextAttributes = [.underline]
+}
+terminal.write(attributedString: attributedString)
+```
+## Colors
+Terminal cells have a foreground color (typically white) and background color (typically black).  Colors can be explicitly defined using RGB or selected by name from built-in color palettes.
 
+You can specify the foreground color using ``Attribute/color(_:)`` and any ``Color`` specified in RGB.
+```swift
+let greenColor = Color(r:0, g:255, b:0)
+terminal.write("Grass is green.\n", attributes: [.color(greenColor)])
+```
+To set both the foreground and background colors use ``Attribute/colorPair(_:)`` passing in a ``ColorPair``.
+```swift
+let redColor = Color(r: 255, g:0, b:0)
+let grayColor = Color(r: 200, g:200, b:200)
+let redOnGray = ColorPair(foreground: redColor, background: grayColor)
+terminal.write("Red rum.\n", attributes: [.colorPair(redOnGray)])
+```
+
+Terminus also has built-in color palettes that can be used to specify colors by name.  Colors from palettes are passed around just like any other ``Color`` in Terminus.
+```swift
+let palette = XTermPalette()
+let blueOneYellow = ColorPair(foreground: palette.Blue1, background: palette.Yellow1)
+terminal.write("Blue on yellow", attributes: [.colorPair(blueOneYellow)])
+```
+
+To capture an entire line of text (until a "\n" is received) use the ``Terminal/getLine()`` function.
+```swift
+let line = terminal.getLine()
+```
+
+## Getting User Input
+To catpure a single keypress use ``Terminal/getKey()``.
+```swift
+terminal.write("Press any key: ")
+if let key = try? terminal.getKey() {
+    terminal.write("\nYou pressed the \(key.rawValue) key.")
+}
+```
+To capture an entire line of text (until a "\n" is received) use the ``Terminal/getLine()`` function.
+```swift
+let line = terminal.getLine()
+```
 # Documentation
 
-DocC files are hosted on https://swiftpackageindex.com
+You can find the DocC files on the [Swift Package Index](https://swiftpackageindex.com) or compile and view them yourself using XCode or the [DocC](https://github.com/apple/swift-docc) package.
 
 # Installation
 
