@@ -1,8 +1,7 @@
-# Terminus
 ![GitHub license](https://img.shields.io/github/license/jbadger3/Terminus) ![Version](https://img.shields.io/github/v/tag/jbadger3/Terminus) ![os(macOS)](https://img.shields.io/static/v1?label=os&message=macOS&color=green) ![os(Linux)](https://img.shields.io/static/v1?label=os&message=Linux&color=green)
     ![os(Windows)](https://img.shields.io/static/v1?label=os&message=Windows&color=red)
 
-![logo](logo.png)
+![logo](logo.jpg)
 
 # What is it?
 The goal of Terminus is to make writing visually appealing command line applications fast, efficient, and intuitive.  It aims to provide both high level building blocks like menus and user prompts (y/n, multiple choice, REPL, etc.) as well as lower level access to ANSI codes for users that one more complete control.
