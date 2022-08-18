@@ -1,4 +1,3 @@
-# Terminus
 ![GitHub license](https://img.shields.io/github/license/jbadger3/Terminus) ![Version](https://img.shields.io/github/v/tag/jbadger3/Terminus) ![os(macOS)](https://img.shields.io/static/v1?label=os&message=macOS&color=green) ![os(Linux)](https://img.shields.io/static/v1?label=os&message=Linux&color=green)
     ![os(Windows)](https://img.shields.io/static/v1?label=os&message=Windows&color=red)
 
