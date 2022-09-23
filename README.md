@@ -111,7 +111,7 @@ let package = Package(
 In your current CLI project
 1.  Select File > Swift Packages > Add Package Dependency.
 2. Copy and paste https://github.com/jbadger3/Terminus into the search URL
-3. Select SwiftAnnoy and click next.
+3. Select Terminus and click next.
 4. Choose a rule for dependency management.  Click next.
 5. Click Finish.
 
