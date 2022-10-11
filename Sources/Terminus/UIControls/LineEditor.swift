@@ -60,6 +60,12 @@ open class LineEditor {
         self.startLocation = startLocation
         while !shouldEndEditing {
             if let key = try? terminal.getKey() {
+                // If the text gets shifted due to another print function being called reset the startLocation by first checking if bufferIndexForLocation in nil
+                guard let currentLocation = terminal.cursor.location else { continue }
+                if bufferIndexForLocation(currentLocation) == nil {
+                    self.startLocation = currentLocation
+                }
+                
                 var shouldWriteBuffer: Bool = false
                 switch key.type {
                 case .character:
