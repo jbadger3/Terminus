@@ -137,3 +137,5 @@ I am by no means an expert in all things terminal, nor can I say that I haven't 
 * Summary of [ANSI Codes](https://www.real-world-systems.com/docs/ANSIcode.html)
 
 * [rainbow](https://github.com/onevcat/Rainbow) : A nifty ANSI text styling package.
+    
+* [The TTY demystified](http://www.linusakesson.net/programming/tty/) : A great article about the history and inner workings of the TTY subsystem.
