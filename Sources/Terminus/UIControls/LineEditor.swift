@@ -254,7 +254,7 @@ open class LineEditor {
             let startBufferHeight = bufferHeight()
             let endCursorPosition = terminal.endCursorLocationFor(stringToDisplay: key.rawValue)
             if let index = bufferIndexForLocation(startWriteLocation) {
-                buffer.insert(AttributedString(key.rawValue), at: index)
+                buffer.insert(AttributedString(keyString), at: index)
             }
             let endBufferHeight = bufferHeight()
             if endBufferHeight > startBufferHeight && startLocation.y + endBufferHeight - 1 > textAreaSize.height {

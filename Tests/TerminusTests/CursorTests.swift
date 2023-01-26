@@ -11,7 +11,7 @@ class CursorTests: XCTestCase {
     
     override func setUpWithError() throws {
         sut = Cursor()
-
+        terminal = Terminal.shared
     }
     
     override func tearDownWithError() throws {
