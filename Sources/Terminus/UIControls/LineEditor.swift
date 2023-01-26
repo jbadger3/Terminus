@@ -251,33 +251,18 @@ open class LineEditor {
         if let startWriteLocation = terminal.cursor.location,
            let textAreaSize = try? terminal.textAreaSize() {
             let keyString = key.rawValue.replacingOccurrences(of: "\t", with: "    ")
-            for char in keyString {
-                terminal.write(String(char))
-                if let endWriteLocation = terminal.cursor.location {
-                    let startBufferHeight = bufferHeight()
-                    if let index = bufferIndexForLocation(startWriteLocation) {
-                        if startWriteLocation == endWriteLocation && char != "\n" {
-                            if let nextIndex = bufferIndexForLocation(endWriteLocation) {
-                                buffer.insert(AttributedString(String(char)), at: nextIndex)
-                            }
-                            /* the cursor stays in the last position of a line until the next added character requires a wrap.  Using the terminal to write a space in the current location helps force a line wrap when needed.  It's a bit wonky, but works for now. */
-                            terminal.write(" ")
-                            terminal.cursor.move(toLocation: Location(x: 1, y: endWriteLocation.y + 1))
-                        } else {
-                            buffer.insert(AttributedString(String(char)), at: index)
-                        }
-                        if bufferHeight() > startBufferHeight && startLocation.y + bufferHeight() - 1 > textAreaSize.height {
-                               startLocation = Location(x: startLocation.x, y: startLocation.y - 1)
-                        }
-                    } else {
-                        terminal.cursor.move(toLocation: startWriteLocation)
-                        break
-                    }
-                } else {
-                    terminal.cursor.move(toLocation: startWriteLocation)
-                    break
-                }
+            let startBufferHeight = bufferHeight()
+            let endCursorPosition = terminal.endCursorLocationFor(stringToDisplay: key.rawValue)
+            if let index = bufferIndexForLocation(startWriteLocation) {
+                buffer.insert(AttributedString(key.rawValue), at: index)
             }
+            let endBufferHeight = bufferHeight()
+            if endBufferHeight > startBufferHeight && startLocation.y + endBufferHeight - 1 > textAreaSize.height {
+                let scrollAmount = (startLocation.y + endBufferHeight - 1) -  textAreaSize.height
+                startLocation = Location(x: startLocation.x, y: startLocation.y - scrollAmount)
+                terminal.executeControlSequence(ANSIEscapeCode.scrollUp(n: scrollAmount))
+            }
+            terminal.cursor.move(toLocation: endCursorPosition)
         }
     }
     
@@ -305,6 +290,7 @@ open class LineEditor {
             }
             terminal.cursor.move(toLocation: startLocation)
         }
+         
         
         terminal.write(attributedString: buffer)
         terminal.cursor.restore()
@@ -346,8 +332,6 @@ open class LineEditor {
         }
         return nil
     }
-    
-
     
     /*
      When index == endIndex returns the location just after the last stored character
