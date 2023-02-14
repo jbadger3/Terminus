@@ -91,11 +91,28 @@ public class Terminal {
      Prints output to the terminal with attributes such as text style and color.
      */
     public func write(_ string: String, attributes: [Attribute] = []) {
+        /*Bug.  When a call to print fills in exactly enough characters to finish
+         filling in a line the cursor is left hanging off the edge of the screen
+         instead of being advanced to the beginning of the next line.  Not sure if this is becuase the terminator is set to "".  The hack is to precalculate the expected cursor location after the write...and advance it manually if needed.
+         */
+        let endLocation = endCursorLocationFor(stringToDisplay: string)
+        
         let attributesStr = attributes.map{$0.csString()}.reduce(""){$0 + $1}
         print(attributesStr + string, terminator: "")
         let resetAttributes = attributes.map{$0.resetValue()}.joined(separator: "")
         print(resetAttributes, terminator: "")
         fflush(stdout)
+        
+        if let textArea = try? textAreaSize(),
+           endLocation.x == 1,
+           !string.hasSuffix("\n"){
+            if endLocation.y > textArea.height {
+                executeControlSequence(ANSIEscapeCode.scrollUp(n: 1))
+                cursor.move(toLocation: Location(x: 1, y: textArea.height))
+            } else {
+                cursor.move(toLocation: endLocation)
+            }
+        }
     }
     
     /**
@@ -184,6 +201,26 @@ public class Terminal {
         softReset()
         termios.restoreOriginalSettings()
         exit(0)
+    }
+}
+
+extension Terminal {
+    //Internal function used to monitor how the cursor location should change with writes based on the current cursor location.  \n characters must be considered as well.
+    func endCursorLocationFor(stringToDisplay string: String) -> Location {
+        let terminal = Terminal.shared
+        guard let startLocation = terminal.cursor.location,
+              let textAreaSize = try? terminal.textAreaSize() else { return Location(x: -1, y: -1)}
+        var currentX = startLocation.x
+        var currentY = startLocation.y
+        for char in string {
+            if char == "\n" || currentX >= textAreaSize.width {
+                currentX = 1
+                currentY += 1
+            } else {
+                currentX += 1
+            }
+        }
+        return Location(x: currentX, y: currentY)
     }
 }
 

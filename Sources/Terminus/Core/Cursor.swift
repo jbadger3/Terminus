@@ -23,9 +23,6 @@ public struct Cursor {
             return nil
             //throw TerminalError.failedToReadTerminalResponse(message: "")
         }
-
-
-       
     }
 
     public init() {}
