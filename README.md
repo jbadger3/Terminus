@@ -62,10 +62,6 @@ let blueOneYellow = ColorPair(foreground: palette.Blue1, background: palette.Yel
 terminal.write("Blue on yellow", attributes: [.colorPair(blueOneYellow)])
 ```
 
-To capture an entire line of text (until a "\n" is received) use the ``Terminal/getLine()`` function.
-```swift
-let line = terminal.getLine()
-```
 
 ## Getting User Input
 To catpure a single keypress use ``Terminal/getKey()``.
